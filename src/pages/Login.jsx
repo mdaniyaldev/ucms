@@ -24,16 +24,23 @@ export default function Login() {
     defaultValues: { uniqueId: "", password: "" },
   });
 
-  // Redirect if already logged in
+  // If already logged in, route by role
   useEffect(() => {
-    if (!loading && user) navigate("/dashboard", { replace: true });
+    if (loading) return;
+    if (user?.role === "admin") navigate("/admin", { replace: true });
+    else if (user) navigate("/dashboard", { replace: true });
   }, [loading, user, navigate]);
 
   async function onSubmit(values) {
     try {
-      // Trim ID to avoid whitespace issues
-      await login({ uniqueId: values.uniqueId.trim(), password: values.password });
-      navigate("/dashboard", { replace: true });
+      // login() returns profile in your AuthContext
+      const profile = await login({
+        uniqueId: values.uniqueId.trim(),
+        password: values.password,
+      });
+
+      if (profile?.role === "admin") navigate("/admin", { replace: true });
+      else navigate("/dashboard", { replace: true });
     } catch (err) {
       const msg =
         err?.message?.toLowerCase()?.includes("invalid login credentials")
@@ -53,9 +60,7 @@ export default function Login() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* University ID */}
           <div>
-            <label className="block text-sm text-slate-300 mb-1">
-              University ID
-            </label>
+            <label className="block text-sm text-slate-300 mb-1">University ID</label>
             <input
               type="text"
               placeholder="e.g., FA22-123"
@@ -64,17 +69,13 @@ export default function Login() {
               autoComplete="username"
             />
             {errors.uniqueId && (
-              <p className="mt-1 text-xs text-red-400">
-                {errors.uniqueId.message}
-              </p>
+              <p className="mt-1 text-xs text-red-400">{errors.uniqueId.message}</p>
             )}
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm text-slate-300 mb-1">
-              Password
-            </label>
+            <label className="block text-sm text-slate-300 mb-1">Password</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -83,13 +84,10 @@ export default function Login() {
               autoComplete="current-password"
             />
             {errors.password && (
-              <p className="mt-1 text-xs text-red-400">
-                {errors.password.message}
-              </p>
+              <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>
             )}
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -98,7 +96,6 @@ export default function Login() {
             {isSubmitting ? "Signing in…" : "Sign in"}
           </button>
 
-          {/* Help */}
           <p className="text-center text-sm text-slate-400 mt-3">
             Trouble signing in? Contact your Department Coordinator.
           </p>

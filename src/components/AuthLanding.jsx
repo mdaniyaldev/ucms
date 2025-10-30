@@ -1,13 +1,21 @@
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function AuthLanding() {
-  const { user, loading, authLoading } = useAuth();
-  if (loading || authLoading) return null; // Provider shows splash
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
-  // Already logged in? send to dashboard
-  if (user) return <Navigate to="/dashboard" replace />;
+  useEffect(() => {
+    if (loading) return;
+    if (user?.role === "admin") navigate("/admin", { replace: true });
+    else if (user) navigate("/dashboard", { replace: true });
+    else navigate("/login", { replace: true });
+  }, [loading, user, navigate]);
 
-  // Not logged in? go to login
-  return <Navigate to="/login" replace />;
+  return (
+    <div className="min-h-screen grid place-items-center bg-slate-950">
+      <div className="text-slate-300">Loading…</div>
+    </div>
+  );
 }

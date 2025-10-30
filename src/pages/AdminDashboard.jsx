@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { createUserAsAdmin } from "../lib/admin";
 import { supabase } from "../lib/supabase";
@@ -34,9 +35,7 @@ export default function AdminDashboard() {
         if (active) setLoadingDeps(false);
       }
     })();
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
   async function onSubmit(e) {
@@ -44,19 +43,13 @@ export default function AdminDashboard() {
     setMsg(null);
 
     if (!form.uniqueId.trim() || form.password.length < 6) {
-      setMsg({
-        type: "error",
-        text: "Provide a Unique ID and a password (min 6 chars).",
-      });
+      setMsg({ type: "error", text: "Provide a Unique ID and a password (min 6 chars)." });
       return;
     }
-
     if (!["student", "faculty", "coordinator", "admin"].includes(form.role)) {
       setMsg({ type: "error", text: "Invalid role selected." });
       return;
     }
-
-    const dep = form.department_id || null;
 
     setSubmitting(true);
     try {
@@ -64,12 +57,9 @@ export default function AdminDashboard() {
         uniqueId: form.uniqueId.trim(),
         password: form.password,
         role: form.role,
-        department_id: dep,
+        department_id: form.department_id || null,
       });
-      setMsg({
-        type: "success",
-        text: `✅ User created successfully (id: ${result.user_id})`,
-      });
+      setMsg({ type: "success", text: `✅ User created (id: ${result.user_id})` });
       setForm({ uniqueId: "", password: "", role: "student", department_id: "" });
     } catch (err) {
       setMsg({ type: "error", text: err.message || "Failed to create user" });
@@ -90,16 +80,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* HEADER */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60">
         <h1 className="text-xl font-semibold">UCMS — Admin Dashboard</h1>
         <div className="flex items-center gap-3">
-          <a
-            href="/dashboard"
+          <Link
+            to="/dashboard"
             className="rounded-lg bg-sky-600 px-3 py-1.5 text-sm font-semibold hover:bg-sky-500"
           >
             Back to Dashboard
-          </a>
+          </Link>
           <button
             onClick={logout}
             className="rounded-lg bg-rose-600 px-3 py-1.5 text-sm font-semibold hover:bg-rose-500"
@@ -109,7 +98,6 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* MAIN */}
       <main className="p-6 grid gap-6">
         <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 max-w-xl">
           <h2 className="text-lg font-semibold mb-4">Create New User</h2>
@@ -127,43 +115,36 @@ export default function AdminDashboard() {
           )}
 
           <form onSubmit={onSubmit} className="grid gap-4">
+            {/* Unique ID */}
             <label className="block">
-              <span className="mb-1 block text-sm text-slate-300">
-                University Unique ID
-              </span>
+              <span className="mb-1 block text-sm text-slate-300">University Unique ID</span>
               <input
                 className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-500 focus:ring-4 focus:ring-slate-700/40"
                 placeholder="e.g., FA22-123"
                 value={form.uniqueId}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, uniqueId: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, uniqueId: e.target.value }))}
               />
             </label>
 
+            {/* Password */}
             <label className="block">
-              <span className="mb-1 block text-sm text-slate-300">
-                Initial Password
-              </span>
+              <span className="mb-1 block text-sm text-slate-300">Initial Password</span>
               <input
                 className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-500 focus:ring-4 focus:ring-slate-700/40"
                 type="password"
                 placeholder="Min 6 characters"
                 value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
               />
             </label>
 
+            {/* Role */}
             <label className="block">
               <span className="mb-1 block text-sm text-slate-300">Role</span>
               <select
                 className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-500"
                 value={form.role}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, role: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
               >
                 <option value="student">Student</option>
                 <option value="faculty">Faculty / Staff</option>
@@ -172,30 +153,21 @@ export default function AdminDashboard() {
               </select>
             </label>
 
+            {/* Department */}
             <label className="block">
-              <span className="mb-1 block text-sm text-slate-300">
-                Department (optional)
-              </span>
+              <span className="mb-1 block text-sm text-slate-300">Department (optional)</span>
               <select
                 className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-slate-500 disabled:opacity-60"
                 value={form.department_id}
                 disabled={loadingDeps}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, department_id: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, department_id: e.target.value }))}
               >
                 <option value="">— none —</option>
                 {deps.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}
-                  </option>
+                  <option key={d.id} value={d.id}>{d.name}</option>
                 ))}
               </select>
-              {loadingDeps && (
-                <span className="text-xs text-slate-400">
-                  Loading departments…
-                </span>
-              )}
+              {loadingDeps && <span className="text-xs text-slate-400">Loading departments…</span>}
             </label>
 
             <button

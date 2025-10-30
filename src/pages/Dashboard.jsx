@@ -1,7 +1,15 @@
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // If an admin somehow lands here, push them to /admin
+  useEffect(() => {
+    if (user?.role === "admin") navigate("/admin", { replace: true });
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -13,14 +21,14 @@ export default function Dashboard() {
             Signed in as <b>{user?.name || user?.unique_id}</b>
           </span>
 
-          {/* ✅ Show only for admins */}
+          {/* Admin quick access */}
           {user?.role === "admin" && (
-            <a
-              href="/admin"
+            <Link
+              to="/admin"
               className="rounded-lg bg-sky-600 px-3 py-1.5 text-sm font-semibold hover:bg-sky-500"
             >
               Admin
-            </a>
+            </Link>
           )}
 
           <button
