@@ -1,8 +1,7 @@
-// src/pages/Login.jsx
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 
@@ -25,18 +24,19 @@ export default function Login() {
     defaultValues: { uniqueId: "", password: "" },
   });
 
-  // 🚀 Redirect if already logged in
+  // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) navigate("/dashboard", { replace: true });
   }, [loading, user, navigate]);
 
   async function onSubmit(values) {
     try {
-      await login(values);
+      // Trim ID to avoid whitespace issues
+      await login({ uniqueId: values.uniqueId.trim(), password: values.password });
       navigate("/dashboard", { replace: true });
     } catch (err) {
       const msg =
-        err?.message?.includes("Invalid login credentials")
+        err?.message?.toLowerCase()?.includes("invalid login credentials")
           ? "Invalid University ID or password"
           : err?.message || "Login failed. Try again.";
       setError("password", { type: "server", message: msg });
@@ -61,6 +61,7 @@ export default function Login() {
               placeholder="e.g., FA22-123"
               className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:ring-4 focus:ring-slate-700/40"
               {...register("uniqueId")}
+              autoComplete="username"
             />
             {errors.uniqueId && (
               <p className="mt-1 text-xs text-red-400">
@@ -79,6 +80,7 @@ export default function Login() {
               placeholder="••••••••"
               className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:ring-4 focus:ring-slate-700/40"
               {...register("password")}
+              autoComplete="current-password"
             />
             {errors.password && (
               <p className="mt-1 text-xs text-red-400">
@@ -96,9 +98,9 @@ export default function Login() {
             {isSubmitting ? "Signing in…" : "Sign in"}
           </button>
 
-          {/* Footer */}
+          {/* Help */}
           <p className="text-center text-sm text-slate-400 mt-3">
-            Need access? Contact your Department Coordinator.
+            Trouble signing in? Contact your Department Coordinator.
           </p>
         </form>
       </div>

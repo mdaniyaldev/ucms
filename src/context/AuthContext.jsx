@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { supabase, idToAliasEmail } from "../lib/supabase";
 
@@ -5,9 +6,9 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
-  const [user, setUser] = useState(null); // { id, unique_id, role, department_id }
-  const [loading, setLoading] = useState(true);
-  const [authLoading, setAuthLoading] = useState(false);
+  const [user, setUser] = useState(null);          // { id, unique_id, role, department_id }
+  const [loading, setLoading] = useState(true);    // initial hydrate
+  const [authLoading, setAuthLoading] = useState(false); // during login/logout
 
   async function fetchProfile(userId) {
     try {
@@ -27,6 +28,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Initial hydrate + auth state listener
   useEffect(() => {
     let mounted = true;
 
@@ -54,32 +56,43 @@ export function AuthProvider({ children }) {
       }
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_evt, sess) => {
-      try {
-        setSession(sess);
-        if (!sess?.user) {
+    // Subscribe to auth state changes
+    const { data: subscriptionContainer } = supabase.auth.onAuthStateChange(
+      async (_evt, sess) => {
+        try {
+          setSession(sess);
+          if (!sess?.user) {
+            setUser(null);
+            return;
+          }
+          const profile = await fetchProfile(sess.user.id);
+          setUser(profile);
+        } catch (e) {
+          console.error("[Auth] onAuthStateChange exception:", e);
           setUser(null);
-          return;
         }
-        const profile = await fetchProfile(sess.user.id);
-        setUser(profile);
-      } catch (e) {
-        console.error("[Auth] onAuthStateChange exception:", e);
-        setUser(null);
       }
-    });
+    );
 
     return () => {
       mounted = false;
-      sub?.subscription?.unsubscribe?.();
+      // Proper unsubscribe handle
+      subscriptionContainer?.subscription?.unsubscribe?.();
     };
   }, []);
 
+  // LOGIN with UniqueID + password
   async function login({ uniqueId, password }) {
     setAuthLoading(true);
     try {
-      const email = idToAliasEmail(uniqueId.trim());
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const email = idToAliasEmail(String(uniqueId || "").trim());
+      // 🔎 Debug the exact email we try to sign in with
+      console.log("[DEBUG] email used to sign in:", email);
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       if (error) throw error;
 
       const uid = data?.user?.id;
@@ -96,20 +109,23 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // LOGOUT
   async function logout() {
     setAuthLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) console.error("[Auth] logout error:", error.message);
       setUser(null);
+      setSession(null);
     } finally {
       setAuthLoading(false);
     }
   }
 
+  // (Optional) Client signup; normally admins create users via Edge Function
   async function signup({ uniqueId, password, role = "student", department_id = null }) {
     try {
-      const email = idToAliasEmail(uniqueId.trim());
+      const email = idToAliasEmail(String(uniqueId || "").trim());
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
 
