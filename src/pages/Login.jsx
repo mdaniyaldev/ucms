@@ -240,7 +240,7 @@ export default function Login() {
         ) : (
           // SIGNUP TAB
           <div className="text-center text-gray-500 text-sm">
-            Sign-up feature coming soon.
+            Sign-up feature coming soon!
           </div>
         )}
       </div>
