@@ -24,7 +24,7 @@ export default createBrowserRouter([
 
   // Public auth pages
   { path: "/login", element: <Login /> },
-  { path: "/signup", element: <Signup /> },
+  // { path: "/signup", element: <Signup /> },
 
   // Authenticated area
   {
