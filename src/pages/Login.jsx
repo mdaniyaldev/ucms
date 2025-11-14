@@ -50,7 +50,7 @@ export default function Login() {
       loginButton: "Login",
       signupButton: "Create Account",
       forgotPassword: "Forgot password?",
-      idPlaceholder: "e.g., FA22-123",
+      idPlaceholder: "e.g. John-123",
       passwordPlaceholder: "Enter your password",
     },
     ur: {
@@ -115,7 +115,7 @@ export default function Login() {
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center mb-6">
+        {/* <div className="flex justify-center mb-6">
           <div className="flex bg-gray-100 rounded-lg overflow-hidden w-full">
             <button
               onClick={() => setActiveTab("login")}
@@ -138,7 +138,7 @@ export default function Login() {
               {text[language].signup}
             </button>
           </div>
-        </div>
+        </div> */}
 
         {activeTab === "login" ? (
           // LOGIN TAB
