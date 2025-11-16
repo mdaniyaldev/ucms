@@ -5,9 +5,9 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
-  const [user, setUser] = useState(null);         
-  const [loading, setLoading] = useState(true);    
-  const [authLoading, setAuthLoading] = useState(false); 
+  const [user, setUser] = useState(null); // { id, unique_id, role, department_id }
+  const [loading, setLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
 
   async function fetchProfile(userId) {
     try {
@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
 
         if (!sess?.user) {
           setUser(null);
-          setLoading(false); 
+          setLoading(false);
           return;
         }
 
@@ -84,7 +84,7 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  async function login({ uniqueId, password }) {
+  async function login({ uniqueId, password, expectedRole }) {
     setAuthLoading(true);
     try {
       const email = idToAliasEmail(String(uniqueId || "").trim());
@@ -100,6 +100,29 @@ export function AuthProvider({ children }) {
       if (!uid) throw new Error("Login failed: no user returned");
 
       const profile = await fetchProfile(uid);
+      if (!profile) {
+        // No profile row found for this auth user
+        await supabase.auth.signOut();
+        throw new Error("Profile not found for this user.");
+      }
+
+      // ✅ Enforce role match if expectedRole is provided
+      if (expectedRole && profile.role !== expectedRole) {
+        console.warn(
+          "[Auth] role mismatch:",
+          "selected =",
+          expectedRole,
+          "profile =",
+          profile.role
+        );
+
+        // Clear session so user is not considered logged-in
+        await supabase.auth.signOut();
+
+        // Encode the actual role in the error message for the UI
+        throw new Error(`ROLE_MISMATCH:${profile.role}`);
+      }
+
       setUser(profile);
       setSession(data.session ?? null);
       return profile;

@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { User, Lock, Globe } from "lucide-react";
+import { User, Lock, Globe, Eye, EyeOff } from "lucide-react";
 
 const schema = z.object({
   uniqueId: z.string().min(3, "Enter your University ID"),
@@ -13,10 +13,13 @@ const schema = z.object({
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, user, loading } = useAuth();
+  const { login } = useAuth();
+
   const [selectedRole, setSelectedRole] = useState("student");
   const [activeTab, setActiveTab] = useState("login");
   const [language, setLanguage] = useState("en");
+  const [showPassword, setShowPassword] = useState(false);
+  const [alertMsg, setAlertMsg] = useState(""); // 🔔 Tailwind alert message
 
   const {
     register,
@@ -27,12 +30,6 @@ export default function Login() {
     resolver: zodResolver(schema),
     defaultValues: { uniqueId: "", password: "" },
   });
-
-  useEffect(() => {
-    if (loading) return;
-    if (user?.role === "admin") navigate("/admin", { replace: true });
-    else if (user) navigate("/dashboard", { replace: true });
-  }, [loading, user, navigate]);
 
   const text = {
     en: {
@@ -52,6 +49,10 @@ export default function Login() {
       forgotPassword: "Forgot password?",
       idPlaceholder: "e.g. John-123",
       passwordPlaceholder: "Enter your password",
+      showPassword: "Show password",
+      hidePassword: "Hide password",
+      roleMismatch: (selectedLabel, actualLabel) =>
+        `This account is registered as "${actualLabel}". Please select "${actualLabel}" and try again.`,
     },
     ur: {
       title: "یونیورسٹی شکایات کا نظام",
@@ -70,6 +71,10 @@ export default function Login() {
       forgotPassword: "پاس ورڈ بھول گئے؟",
       idPlaceholder: "مثلاً FA22-123",
       passwordPlaceholder: "اپنا پاس ورڈ درج کریں",
+      showPassword: "پاس ورڈ دکھائیں",
+      hidePassword: "پاس ورڈ چھپائیں",
+      roleMismatch: (selectedLabel, actualLabel) =>
+        `یہ اکاؤنٹ "${actualLabel}" رول کے ساتھ رجسٹر ہے۔ براہ کرم لاگ ان سے پہلے "${actualLabel}" رول منتخب کریں۔`,
     },
   };
 
@@ -77,20 +82,54 @@ export default function Login() {
     setLanguage((prev) => (prev === "en" ? "ur" : "en"));
 
   async function onSubmit(values) {
+    // clear old alert when user tries again
+    setAlertMsg("");
+
     try {
       const profile = await login({
         uniqueId: values.uniqueId.trim(),
         password: values.password,
+        expectedRole: selectedRole, // 👈 pass selected role to AuthContext
       });
 
-      if (profile?.role === "admin") navigate("/admin", { replace: true });
+      if (!profile) {
+        throw new Error("Login failed. Try again.");
+      }
+
+      // Role already checked in AuthContext; just redirect
+      if (profile.role === "admin") navigate("/admin", { replace: true });
       else navigate("/dashboard", { replace: true });
     } catch (err) {
+      // 🔴 ROLE MISMATCH
+      if (err?.message?.startsWith("ROLE_MISMATCH")) {
+        const actualRole = err.message.split(":")[1] || "student";
+        const actualLabel = text[language][actualRole] ?? actualRole;
+        const selectedLabel = text[language][selectedRole] ?? selectedRole;
+
+        const msg = text[language].roleMismatch(selectedLabel, actualLabel);
+
+        setAlertMsg(msg); // show alert bar
+        setError("password", {
+          type: "role-mismatch",
+          message: msg,
+        });
+
+        // auto-hide after 5s
+        setTimeout(() => setAlertMsg(""), 5000);
+        return;
+      }
+
+      // 🔁 Normal errors (invalid credentials / server errors)
       const msg =
-        err?.message?.toLowerCase()?.includes("invalid login credentials")
+        err?.message?.toLowerCase()?.includes("invalid login credentials") ||
+        err?.message?.toLowerCase()?.includes("invalid login")
           ? "Invalid University ID or password"
           : err?.message || "Login failed. Try again.";
+
+      setAlertMsg(msg); // show alert bar
       setError("password", { type: "server", message: msg });
+
+      setTimeout(() => setAlertMsg(""), 5000);
     }
   }
 
@@ -107,41 +146,39 @@ export default function Login() {
 
       {/* Card */}
       <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl p-6 sm:p-8">
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <h1 className="text-xl font-bold text-gray-900 mb-1">
             {text[language].title}
           </h1>
           <p className="text-gray-500 text-sm">{text[language].subtitle}</p>
         </div>
 
-        {/* Tabs */}
-        {/* <div className="flex justify-center mb-6">
-          <div className="flex bg-gray-100 rounded-lg overflow-hidden w-full">
-            <button
-              onClick={() => setActiveTab("login")}
-              className={`w-1/2 py-2 font-medium text-sm transition ${
-                activeTab === "login"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {text[language].login}
-            </button>
-            <button
-              onClick={() => setActiveTab("signup")}
-              className={`w-1/2 py-2 font-medium text-sm transition ${
-                activeTab === "signup"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {text[language].signup}
-            </button>
+        {/* 🔔 Alert Bar */}
+        {alertMsg && (
+          <div className="mb-4">
+            <div className="flex items-center gap-2 bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded-md animate-fadeIn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 
+                     1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 
+                     0L3.34 17c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <span className="text-sm font-medium">{alertMsg}</span>
+            </div>
           </div>
-        </div> */}
+        )}
 
         {activeTab === "login" ? (
-          // LOGIN TAB
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* University ID */}
             <div>
@@ -165,7 +202,7 @@ export default function Login() {
               )}
             </div>
 
-            {/* Password */}
+            {/* Password + Eye Toggle */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {text[language].password}
@@ -173,12 +210,29 @@ export default function Login() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder={text[language].passwordPlaceholder}
-                  className="w-full pl-10 rounded-lg border border-gray-300 bg-gray-50 py-2.5 px-3 text-gray-900 focus:ring-2 focus:ring-blue-400 outline-none"
+                  className="w-full pl-10 pr-10 rounded-lg border border-gray-300 bg-gray-50 py-2.5 px-3 text-gray-900 focus:ring-2 focus:ring-blue-400 outline-none"
                   {...register("password")}
                   autoComplete="current-password"
                 />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  aria-label={
+                    showPassword
+                      ? text[language].hidePassword
+                      : text[language].showPassword
+                  }
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
               </div>
               {errors.password && (
                 <p className="text-xs text-red-500 mt-1">
@@ -238,7 +292,6 @@ export default function Login() {
             </div>
           </form>
         ) : (
-          // SIGNUP TAB
           <div className="text-center text-gray-500 text-sm">
             Sign-up feature coming soon!
           </div>
