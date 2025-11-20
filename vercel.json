@@ -1,5 +1,6 @@
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
-  ]
+  ],
+  "ignoreCommand": "if [ \"$VERCEL_GIT_BRANCH\" = \"testing\" ]; then exit 1; fi"
 }

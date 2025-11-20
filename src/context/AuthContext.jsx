@@ -4,13 +4,15 @@ import { supabase, idToAliasEmail } from "../lib/supabase";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState(null); // Supabase session
   const [user, setUser] = useState(null); // { id, unique_id, role, department_id }
-  const [loading, setLoading] = useState(true);
-  const [authLoading, setAuthLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // initial load / refresh
+  const [authLoading, setAuthLoading] = useState(false); // login/signup only
 
+  // helper: fetch profile by auth user id
   async function fetchProfile(userId) {
     try {
+      console.log("[Auth] fetchProfile for userId =", userId);
       const { data, error } = await supabase
         .from("profiles")
         .select("id, unique_id, role, department_id")
@@ -21,6 +23,8 @@ export function AuthProvider({ children }) {
         console.error("[Auth] fetchProfile error:", error.message);
         return null;
       }
+
+      console.log("[Auth] fetchProfile result:", data);
       return data ?? null;
     } catch (e) {
       console.error("[Auth] fetchProfile exception:", e);
@@ -28,67 +32,68 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // initial hydrate on page refresh / first load
   useEffect(() => {
     let mounted = true;
 
     (async () => {
       try {
+        console.log("[Auth] hydrate: getSession start");
         const { data, error } = await supabase.auth.getSession();
         if (error) console.error("[Auth] getSession error:", error.message);
         if (!mounted) return;
 
         const currentSession = data?.session ?? null;
+        console.log("[Auth] hydrate: currentSession =", currentSession);
         setSession(currentSession);
 
         if (currentSession?.user) {
           const profile = await fetchProfile(currentSession.user.id);
           if (!mounted) return;
-          setUser(profile);
+
+          if (!profile) {
+            console.warn(
+              "[Auth] hydrate: session present but profile missing -> signing out"
+            );
+            await supabase.auth.signOut({ scope: "local" });
+            setUser(null);
+            setSession(null);
+          } else {
+            setUser(profile);
+          }
         } else {
           setUser(null);
         }
       } catch (e) {
         console.error("[Auth] hydrate exception:", e);
-        if (mounted) setUser(null);
+        if (mounted) {
+          setUser(null);
+          setSession(null);
+        }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          console.log("[Auth] hydrate: loading=false");
+          setLoading(false);
+        }
       }
     })();
 
-    // Subscribe to auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_evt, sess) => {
-      try {
-        setSession(sess);
-
-        if (!sess?.user) {
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-
-        const profile = await fetchProfile(sess.user.id);
-        setUser(profile);
-      } catch (e) {
-        console.error("[Auth] onAuthStateChange exception:", e);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    });
-
     return () => {
       mounted = false;
-      subscription.unsubscribe();
     };
   }, []);
 
+  // login with role check
   async function login({ uniqueId, password, expectedRole }) {
     setAuthLoading(true);
     try {
       const email = idToAliasEmail(String(uniqueId || "").trim());
-      console.log("[DEBUG] email used to sign in:", email);
+      console.log(
+        "[Auth] login: email used =",
+        email,
+        "expectedRole =",
+        expectedRole
+      );
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -101,12 +106,12 @@ export function AuthProvider({ children }) {
 
       const profile = await fetchProfile(uid);
       if (!profile) {
-        // No profile row found for this auth user
-        await supabase.auth.signOut();
+        console.warn("[Auth] login: profile not found -> signing out");
+        await supabase.auth.signOut({ scope: "local" });
         throw new Error("Profile not found for this user.");
       }
 
-      // ✅ Enforce role match if expectedRole is provided
+      // role mismatch handling
       if (expectedRole && profile.role !== expectedRole) {
         console.warn(
           "[Auth] role mismatch:",
@@ -115,37 +120,32 @@ export function AuthProvider({ children }) {
           "profile =",
           profile.role
         );
-
-        // Clear session so user is not considered logged-in
-        await supabase.auth.signOut();
-
-        // Encode the actual role in the error message for the UI
+        await supabase.auth.signOut({ scope: "local" });
         throw new Error(`ROLE_MISMATCH:${profile.role}`);
       }
 
       setUser(profile);
       setSession(data.session ?? null);
+      setLoading(false);
       return profile;
     } catch (e) {
       console.error("[Auth] login error:", e?.message || e);
       throw e;
     } finally {
       setAuthLoading(false);
-      setLoading(false);
     }
   }
 
+  // ------------------------------ logout ------------------------------
   async function logout() {
     setAuthLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
-
       if (error) {
         console.warn(
           "[Auth] global signOut error, falling back to local:",
           error.message
         );
-
         try {
           await supabase.auth.signOut({ scope: "local" });
         } catch (e) {
@@ -161,6 +161,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // ------------------------------ signup ------------------------------
   async function signup({
     uniqueId,
     password,
@@ -203,9 +204,11 @@ export function AuthProvider({ children }) {
   );
 
   if (loading) {
+    // Sirf initial hydration ke liye — agar stuck issue tha,
+    // ab getSession complete hone ke baad hamesha false ho jayega.
     return (
       <div className="min-h-screen grid place-items-center bg-slate-950">
-        <div className="text-slate-300">Loading…</div>
+        <div className="text-slate-300">Loading...</div>
       </div>
     );
   }
