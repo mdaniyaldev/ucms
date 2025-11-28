@@ -7,7 +7,7 @@ const menu = [
   { name: "Manage Users", icon: Users, to: "/admin/users" },
   { name: "Departments", icon: Building, to: "/admin/departments" },
   { name: "Complaints", icon: FileText, to: "/admin/complaints" },
-  { name: "Settings", icon: Settings, to: "/admin/settings" },
+  // { name: "Settings", icon: Settings, to: "/admin/settings" },
   { name: "Analytics", icon: LucideBanknoteArrowUp, to: "/admin/analytics" },
 ];
 

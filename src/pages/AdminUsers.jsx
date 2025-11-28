@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Loader2, Plus } from "lucide-react";
+import { Search, Loader2, Plus, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { createUserAsAdmin } from "../lib/admin";
 
@@ -153,6 +153,46 @@ export default function AdminUsers() {
     }
   }
 
+  // ------------- DELETE USER HANDLER (auth.users via RPC) -------------
+  async function handleDeleteUser(userId, uniqueId) {
+    const ok = window.confirm(
+      `Are you sure you want to delete user "${uniqueId}"? This will remove their account from the system.`
+    );
+    if (!ok) return;
+
+    setMsg(null);
+
+    try {
+      // Call Postgres function: admin_delete_user(target_user_id uuid)
+      const { error } = await supabase.rpc("admin_delete_user", {
+        target_user_id: userId,
+      });
+
+      if (error) {
+        console.error("[AdminUsers] delete user error (RPC):", error);
+        setMsg({
+          type: "error",
+          text: error.message || "Failed to delete user.",
+        });
+        return;
+      }
+
+      // Remove from local state
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+
+      setMsg({
+        type: "success",
+        text: `🗑️ User "${uniqueId}" deleted`,
+      });
+    } catch (err) {
+      console.error("[AdminUsers] delete user exception:", err);
+      setMsg({
+        type: "error",
+        text: err?.message || "Failed to delete user.",
+      });
+    }
+  }
+
   // ------------- JSX -------------
   return (
     <AdminLayout>
@@ -160,7 +200,7 @@ export default function AdminUsers() {
         <div>
           <h1 className="text-2xl font-bold text-base-light">Manage Users</h1>
           <p className="text-sm text-subtle">
-            View, filter, and create user accounts for UCMS.
+            View, filter, create, and delete user accounts for UCMS.
           </p>
         </div>
       </div>
@@ -228,6 +268,9 @@ export default function AdminUsers() {
                       <th className="text-left px-3 py-2 font-medium text-subtle text-xs">
                         Created At
                       </th>
+                      <th className="text-right px-3 py-2 font-medium text-subtle text-xs">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -249,6 +292,18 @@ export default function AdminUsers() {
                           {u.created_at
                             ? new Date(u.created_at).toLocaleString()
                             : "—"}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleDeleteUser(u.id, u.unique_id)
+                            }
+                            className="inline-flex items-center justify-center rounded-md p-1.5 hover:bg-rose-950/60"
+                            title="Delete user"
+                          >
+                            <Trash2 className="w-4 h-4 text-rose-500" />
+                          </button>
                         </td>
                       </tr>
                     ))}
