@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 const menu = [
   { name: "Overview", icon: LayoutDashboard, to: "/admin" },
   { name: "Manage Users", icon: Users, to: "/admin/users" },
-  { name: "Departments", icon: Building, to: "/admin/departments" },
+  // { name: "Departments", icon: Building, to: "/admin/departments" },
   { name: "Complaints", icon: FileText, to: "/admin/complaints" },
   // { name: "Settings", icon: Settings, to: "/admin/settings" },
   { name: "Analytics", icon: LucideBanknoteArrowUp, to: "/admin/analytics" },
