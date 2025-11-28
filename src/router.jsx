@@ -5,9 +5,11 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
 import AdminDashboard from "./pages/AdminDashboard";
-import AdminUsers from "./pages/AdminUsers";      // ✅ NEW
+import AdminUsers from "./pages/AdminUsers";   
 import AuthLanding from "./components/AuthLanding";
 import AdminComplaints from "./pages/AdminComplaints";
+import AdminDepartments from "./pages/AdminDepartments";
+import AdminAnalytics from "./pages/AdminAnalytics";
 
 function NotFound() {
   return (
@@ -46,11 +48,12 @@ export default createBrowserRouter([
   {
     element: <RoleRoute allow={["admin"]} />,
     children: [
-      { path: "/admin", element: <AdminDashboard /> },  // overview
-      { path: "/admin/users", element: <AdminUsers /> },  // manage users
-      { path: "/admin/complaints", element: <AdminComplaints /> },  // manage complaints 
+      { path: "/admin", element: <AdminDashboard /> },
+      { path: "/admin/users", element: <AdminUsers /> },
+      { path: "/admin/complaints", element: <AdminComplaints /> },
+      { path: "/admin/departments", element: <AdminDepartments /> }, 
+      { path: "/admin/analytics", element: <AdminAnalytics /> }, 
       // later:
-      // { path: "/admin/departments", element: <AdminDepartments /> },
       // { path: "/admin/settings", element: <AdminSettings /> },
     ],
   },

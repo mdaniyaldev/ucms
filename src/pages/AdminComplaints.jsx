@@ -1,29 +1,87 @@
 import { useEffect, useState, useMemo } from "react";
 import AdminLayout from "../components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { supabase } from "../lib/supabase";
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from "recharts";
 import { FileDown, Eye, Filter, Loader2 } from "lucide-react";
 import { CSVLink } from "react-csv";
+import Progress from "../components/ui/Progress";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 export default function AdminComplaints() {
-  const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [complaints, setComplaints] = useState([]);  // Removed TypeScript type annotation
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all");
-  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);  // Removed TypeScript type annotation
+
+  // Static complaints data
+  const staticComplaints = [
+    {
+      id: "C001",
+      title: "Lab equipment not working",
+      description: "Computers in Lab 3 are not functioning properly",
+      status: "pending",
+      category: "academic",
+      created_at: "2025-10-12T10:00:00Z",
+      assigned_to: "coordinator1",
+      student_id: "S001",
+      progress: 0,
+      hasEvidence: true,
+    },
+    {
+      id: "C002",
+      title: "Wi-Fi connectivity issues",
+      description: "Frequent disconnections in hostel area",
+      status: "in-progress",
+      category: "it",
+      created_at: "2025-10-10T12:00:00Z",
+      assigned_to: "coordinator2",
+      student_id: "S002",
+      progress: 50,
+      hasEvidence: false,
+    },
+    {
+      id: "C003",
+      title: "Bus schedule delay",
+      description: "Bus arriving 30 minutes late daily",
+      status: "resolved",
+      category: "transport",
+      created_at: "2025-10-08T11:30:00Z",
+      assigned_to: "coordinator1",
+      student_id: "S003",
+      progress: 100,
+      hasEvidence: true,
+    },
+    {
+      id: "C004",
+      title: "Library book shortage",
+      description: "Required textbooks not available",
+      status: "escalated",
+      category: "administrative",
+      created_at: "2025-10-05T09:00:00Z",
+      assigned_to: "coordinator2",
+      student_id: "S004",
+      progress: 25,
+      hasEvidence: false,
+    },
+    {
+      id: "C005",
+      title: "Exam schedule conflict",
+      description: "Two exams scheduled at same time",
+      status: "in-progress",
+      category: "academic",
+      created_at: "2025-10-14T14:30:00Z",
+      assigned_to: "coordinator1",
+      student_id: "S005",
+      progress: 75,
+      hasEvidence: true,
+    },
+  ];
 
   useEffect(() => {
-    async function loadComplaints() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("complaints")
-        .select("id, title, description, status, category, created_at, assigned_to, student_id");
-      if (!error) setComplaints(data || []);
+    setLoading(true);
+    setTimeout(() => {
+      setComplaints(staticComplaints);
       setLoading(false);
-    }
-    loadComplaints();
+    }, 1000); // Simulating data load
   }, []);
 
   const filteredComplaints = useMemo(() => {
@@ -32,20 +90,17 @@ export default function AdminComplaints() {
   }, [complaints, filter]);
 
   const handleStatusChange = async (id, newStatus) => {
-    await supabase.from("complaints").update({ status: newStatus }).eq("id", id);
     setComplaints((prev) =>
       prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c))
     );
   };
 
   const handleAssign = async (id, coordinator) => {
-    await supabase.from("complaints").update({ assigned_to: coordinator }).eq("id", id);
     setComplaints((prev) =>
       prev.map((c) => (c.id === id ? { ...c, assigned_to: coordinator } : c))
     );
   };
 
-  // Static analytics data for now
   const analyticsData = [
     { status: "Open", count: complaints.filter((c) => c.status === "open").length },
     { status: "In Progress", count: complaints.filter((c) => c.status === "in-progress").length },
@@ -62,6 +117,21 @@ export default function AdminComplaints() {
     { label: "Student ID", key: "student_id" },
     { label: "Created At", key: "created_at" },
   ];
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "pending":
+        return <span className="badge badge-pending">Pending</span>;
+      case "in-progress":
+        return <span className="badge badge-in-progress">In Progress</span>;
+      case "resolved":
+        return <span className="badge badge-resolved">Resolved</span>;
+      case "escalated":
+        return <span className="badge badge-escalated">Escalated</span>;
+      default:
+        return <span className="badge badge-default">Unknown</span>;
+    }
+  };
 
   return (
     <AdminLayout>
@@ -85,6 +155,7 @@ export default function AdminComplaints() {
               <option value="open">Open</option>
               <option value="in-progress">In Progress</option>
               <option value="resolved">Resolved</option>
+              <option value="escalated">Escalated</option>
             </select>
           </div>
           <CSVLink
@@ -131,67 +202,59 @@ export default function AdminComplaints() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                    <th className="text-left p-2">Title</th>
-                    <th className="text-left p-2">Category</th>
-                    <th className="text-left p-2">Status</th>
-                    <th className="text-left p-2">Assigned To</th>
-                    <th className="text-left p-2">Created At</th>
-                    <th className="text-right p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredComplaints.map((c) => (
-                    <tr
-                      key={c.id}
-                      className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                    >
-                      <td className="p-2 font-medium">{c.title}</td>
-                      <td className="p-2">{c.category}</td>
-                      <td className="p-2 capitalize">
-                        <select
-                          value={c.status}
-                          onChange={(e) =>
-                            handleStatusChange(c.id, e.target.value)
-                          }
-                          className="border rounded-md text-xs px-2 py-1 dark:bg-slate-900 dark:border-slate-700"
-                        >
-                          <option value="open">Open</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="resolved">Resolved</option>
-                        </select>
-                      </td>
-                      <td className="p-2">
-                        <select
-                          value={c.assigned_to || ""}
-                          onChange={(e) =>
-                            handleAssign(c.id, e.target.value)
-                          }
-                          className="border rounded-md text-xs px-2 py-1 dark:bg-slate-900 dark:border-slate-700"
-                        >
-                          <option value="">Unassigned</option>
-                          <option value="coordinator1">Coordinator 1</option>
-                          <option value="coordinator2">Coordinator 2</option>
-                        </select>
-                      </td>
-                      <td className="p-2 text-xs text-slate-500">
-                        {new Date(c.created_at).toLocaleString()}
-                      </td>
-                      <td className="p-2 text-right">
-                        <button
-                          onClick={() => setSelectedComplaint(c)}
-                          className="flex items-center gap-1 text-blue-600 hover:underline"
-                        >
-                          <Eye className="w-4 h-4" />
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="space-y-4">
+                {filteredComplaints.map((complaint) => (
+                  <Card key={complaint.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-blue-600">{complaint.id}</span>
+                            <div className="text-gray-600">
+                              <strong>{complaint.category}</strong>
+                              <span className="ml-1">|</span>
+                              <span>{complaint.assigned_to}</span>
+                            </div>
+                          </div>
+                          <h3 className="text-gray-900 mb-1">{complaint.title}</h3>
+                          <p className="text-gray-600 text-sm">{complaint.description}</p>
+                          <p className="text-gray-500 text-xs mt-2">
+                            Date: {new Date(complaint.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="ml-4">
+                          {getStatusBadge(complaint.status)}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">Progress</span>
+                          <span className="text-gray-900">{complaint.progress}%</span>
+                        </div>
+                        <Progress value={complaint.progress} />
+                      </div>
+
+                      {(complaint.status !== "resolved" && complaint.status !== "escalated") && (
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            onClick={() => handleStatusChange(complaint.id, "in-progress")}
+                            className="bg-blue-500 text-white px-4 py-2 rounded"
+                          >
+                            Set In Progress
+                          </button>
+                          <button
+                            onClick={() => handleStatusChange(complaint.id, "escalated")}
+                            className="bg-red-500 text-white px-4 py-2 rounded"
+                          >
+                            Escalate
+                          </button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
         </CardContent>
