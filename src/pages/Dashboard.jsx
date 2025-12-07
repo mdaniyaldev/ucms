@@ -55,6 +55,33 @@ export default function Dashboard() {
             <li>List complaints table (status: Open / In-Review / Resolved)</li>
             <li>Role-based views (Student / Faculty / Coordinator / Admin)</li>
           </ul>
+
+          {/* DEBUG: Print Supabase Access Token for Postman */}
+          <div className="mt-6">
+            <button
+              onClick={async () => {
+                if (!window.supabase) {
+                  console.error("Supabase is not available on window");
+                  alert("Supabase not loaded! Check console.");
+                  return;
+                }
+
+                const { data, error } = await window.supabase.auth.getSession();
+
+                if (error) {
+                  console.error("Error getting session:", error);
+                  alert("Error getting token. Check console.");
+                  return;
+                }
+
+                console.log("ACCESS TOKEN:", data.session?.access_token);
+                alert("Token printed in console!");
+              }}
+              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-semibold hover:bg-emerald-500"
+            >
+              Print Access Token (Postman)
+            </button>
+          </div>
         </div>
       </main>
     </div>
