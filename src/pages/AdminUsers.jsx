@@ -120,7 +120,7 @@ export default function AdminUsers() {
 
       setMsg({
         type: "success",
-        text: `✅ User created (id: ${result.user_id})`,
+        text: `User created (id: ${result.user_id})`,
       });
 
       setForm({
@@ -182,7 +182,7 @@ export default function AdminUsers() {
 
       setMsg({
         type: "success",
-        text: `🗑️ User "${uniqueId}" deleted`,
+        text: `User "${uniqueId}" deleted`,
       });
     } catch (err) {
       console.error("[AdminUsers] delete user exception:", err);
@@ -385,33 +385,6 @@ export default function AdminUsers() {
                   <option value="coordinator">Department Coordinator</option>
                   <option value="admin">Admin</option>
                 </select>
-              </div>
-
-              {/* Department */}
-              <div>
-                <label className="block text-xs font-medium text-subtle mb-1">
-                  Department (optional)
-                </label>
-                <select
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-base-light focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60"
-                  value={form.department_id}
-                  disabled={loadingDeps}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, department_id: e.target.value }))
-                  }
-                >
-                  <option value="">— none —</option>
-                  {deps.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name}
-                    </option>
-                  ))}
-                </select>
-                {loadingDeps && (
-                  <p className="text-[11px] text-subtle mt-1">
-                    Loading departments…
-                  </p>
-                )}
               </div>
 
               <button

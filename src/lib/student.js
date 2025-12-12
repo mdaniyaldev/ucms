@@ -104,7 +104,8 @@ export async function listMyComplaints() {
       due_at,
       resolved_at,
       escalated_at,
-      priority
+      priority,
+      department:departments(name)
     `
     )
     .eq("student_id", user.id)
