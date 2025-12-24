@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(false); // login/signup only
 
   // helper: fetch profile by auth user id
+  // In AuthContext.jsx, change the fetchProfile function back to:
   async function fetchProfile(userId) {
     try {
       console.log("[Auth] fetchProfile for userId =", userId);
@@ -31,7 +32,6 @@ export function AuthProvider({ children }) {
       return null;
     }
   }
-
   // initial hydrate on page refresh / first load
   useEffect(() => {
     let mounted = true;

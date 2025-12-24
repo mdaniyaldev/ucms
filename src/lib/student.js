@@ -96,6 +96,7 @@ export async function listMyComplaints() {
       `
       id,
       title,
+      body,
       category,
       status,
       department_id,

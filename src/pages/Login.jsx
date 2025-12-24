@@ -19,7 +19,7 @@ export default function Login() {
   const [activeTab, setActiveTab] = useState("login");
   const [language, setLanguage] = useState("en");
   const [showPassword, setShowPassword] = useState(false);
-  const [alertMsg, setAlertMsg] = useState(""); // 🔔 Tailwind alert message
+  const [alertMsg, setAlertMsg] = useState(""); // Tailwind alert message
 
   const {
     register,
@@ -89,7 +89,7 @@ export default function Login() {
       const profile = await login({
         uniqueId: values.uniqueId.trim(),
         password: values.password,
-        expectedRole: selectedRole, // 👈 pass selected role to AuthContext
+        expectedRole: selectedRole, // pass selected role to AuthContext
       });
 
       if (!profile) {
@@ -98,6 +98,7 @@ export default function Login() {
 
       // Role already checked in AuthContext; just redirect
       if (profile.role === "admin") navigate("/admin", { replace: true });
+      else if (profile.role === "student") navigate("/student-dashboard", { replace: true });
       else navigate("/dashboard", { replace: true });
     } catch (err) {
       // 🔴 ROLE MISMATCH

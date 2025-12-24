@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/Dashboard"; // admin dashboard or general dashboard
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -10,6 +9,10 @@ import AuthLanding from "./components/AuthLanding";
 import AdminComplaints from "./pages/AdminComplaints";
 import AdminDepartments from "./pages/AdminDepartments";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import { StudentDashboard } from "./pages/StudentDashboard";
+import StudentLayout from "./components/student/StudentLayout";
+import { SubmitComplaintForm } from "./components/student/SubmitComplaintForm";
+import { MyComplaints } from "./pages/MyComplaints";
 
 function NotFound() {
   return (
@@ -30,15 +33,33 @@ export default createBrowserRouter([
 
   // Public auth pages
   { path: "/login", element: <Login /> },
-  // { path: "/signup", element: <Signup /> },
 
-  // Authenticated (any logged-in user)
+  // Authenticated routes (any logged-in user)
   {
-    element: <ProtectedRoute />,
-    children: [{ path: "/dashboard", element: <Dashboard /> }],
+    element: <ProtectedRoute />, 
+    children: [{ path: "/dashboard", element: <Dashboard /> }]  // Admin route
   },
 
-  // Coordinator example
+  // Role-based routes for students
+{
+  element: <RoleRoute allow={["student"]} />,
+  children: [
+    { 
+      path: "/student-dashboard", 
+      element: <StudentLayout><StudentDashboard /></StudentLayout>
+    },
+    {
+      path: "/student/submit-complaint",
+      element: <StudentLayout><SubmitComplaintForm /></StudentLayout>
+    },
+    {
+      path: "/student/complaints",
+      element: <StudentLayout><MyComplaints /></StudentLayout>
+    },
+  ],
+},
+
+  // Role-based routes for coordinators
   {
     element: <RoleRoute allow={["coordinator"]} />,
     children: [{ path: "/coordinator", element: <div>Coordinator Panel</div> }],
@@ -51,12 +72,11 @@ export default createBrowserRouter([
       { path: "/admin", element: <AdminDashboard /> },
       { path: "/admin/users", element: <AdminUsers /> },
       { path: "/admin/complaints", element: <AdminComplaints /> },
-      { path: "/admin/departments", element: <AdminDepartments /> }, 
-      { path: "/admin/analytics", element: <AdminAnalytics /> }, 
-      // later:
-      // { path: "/admin/settings", element: <AdminSettings /> },
+      { path: "/admin/departments", element: <AdminDepartments /> },
+      { path: "/admin/analytics", element: <AdminAnalytics /> },
     ],
   },
 
+  // Catch-all route for 404
   { path: "*", element: <NotFound /> },
 ]);

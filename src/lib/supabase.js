@@ -88,7 +88,7 @@ export async function signOut() {
   if (error) throw error;
 }
 
-// ⚠️ TEMP: Expose supabase to window for debugging ONLY
+// TEMP: Expose supabase to window for debugging ONLY
 if (typeof window !== "undefined") {
   window.supabase = supabase;
 }
