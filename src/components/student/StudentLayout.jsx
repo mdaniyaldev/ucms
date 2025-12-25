@@ -1,6 +1,6 @@
 import { useState } from "react";
 import StudentSidebar from "./StudentSidebar";
-import StudentNavbar from "./Studentnavbar";
+import StudentNavbar from "./StudentNavbar";
 import StudentMobileSidebar from "./StudentMobileSidebar";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
