@@ -1,4 +1,3 @@
-// src/components/theme-provider.jsx
 import {
   createContext,
   useContext,
