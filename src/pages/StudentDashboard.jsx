@@ -32,12 +32,12 @@ export function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const text = {
+   const text = {
     en: {
       welcome: "Welcome back",
       overview: "Complaints Overview",
       pending: "Pending",
-      inProgress: "In Progress",
+      inReview: "In Review",
       resolved: "Resolved",
       escalated: "Escalated",
       submitNew: "Submit New Complaint",
@@ -52,14 +52,12 @@ export function StudentDashboard() {
       it: "IT Services",
       transport: "Transport",
       administrative: "Administrative",
-      open: "Open",
-      closed: "Closed",
     },
     ur: {
       welcome: "خوش آمدید",
       overview: "شکایات کا جائزہ",
       pending: "زیر التواء",
-      inProgress: "جاری ہے",
+      inReview: "جائزے میں",
       resolved: "حل ہو گیا",
       escalated: "آگے بھیجا گیا",
       submitNew: "نئی شکایت جمع کرائیں",
@@ -74,8 +72,6 @@ export function StudentDashboard() {
       it: "آئی ٹی سروسز",
       transport: "نقل و حمل",
       administrative: "انتظامی",
-      open: "کھلی",
-      closed: "بند",
     },
   };
 
@@ -101,15 +97,15 @@ export function StudentDashboard() {
   // Calculate stats from real data
   const stats = [
     {
-      label: text[language].open,
+      label: text[language].pending,
       value: complaints.filter((c) => c.status === "open").length,
       icon: Clock,
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
     },
     {
-      label: text[language].pending,
-      value: complaints.filter((c) => c.status === "pending").length,
+      label: text[language].inReview,
+      value: complaints.filter((c) => c.status === "in_review").length,
       icon: AlertTriangle,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
@@ -143,11 +139,11 @@ export function StudentDashboard() {
   const getStatusBadge = (status) => {
     const statusConfig = {
       open: {
-        label: text[language].open,
+        label: text[language].pending,
         variant: "secondary",
       },
-      pending: {
-        label: text[language].pending,
+      in_review: {
+        label: text[language].inReview,
         variant: "secondary",
       },
       resolved: {
@@ -157,10 +153,6 @@ export function StudentDashboard() {
       escalated: {
         label: text[language].escalated,
         variant: "destructive",
-      },
-      closed: {
-        label: text[language].closed,
-        variant: "default",
       },
     };
 

@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import Progress from "../components/ui/Progress";
@@ -46,7 +51,7 @@ export function MyComplaints() {
       filterCategory: "Filter by Category",
       all: "All",
       pending: "Pending",
-      inProgress: "In Progress",
+      inReview: "In Review",
       resolved: "Resolved",
       escalated: "Escalated",
       academic: "Academic",
@@ -66,7 +71,6 @@ export function MyComplaints() {
       progress: "Progress",
       noComplaints: "No complaints found",
       description: "Description",
-      open: "Open",
     },
     ur: {
       title: "میری شکایات",
@@ -76,7 +80,7 @@ export function MyComplaints() {
       filterCategory: "قسم کے مطابق فلٹر کریں",
       all: "تمام",
       pending: "زیر التواء",
-      inProgress: "جاری ہے",
+      inReview: "جائزے میں",
       resolved: "حل ہو گیا",
       escalated: "آگے بھیجا گیا",
       academic: "تعلیمی",
@@ -96,7 +100,6 @@ export function MyComplaints() {
       progress: "پیش رفت",
       noComplaints: "کوئی شکایت نہیں ملی",
       description: "تفصیل",
-      open: "کھلی",
     },
   };
 
@@ -122,9 +125,8 @@ export function MyComplaints() {
   const getStatusIcon = (status) => {
     switch (status) {
       case "open":
-      case "pending":
         return <Clock className="w-4 h-4" />;
-      case "in-progress":
+      case "in_review":
         return <AlertTriangle className="w-4 h-4" />;
       case "resolved":
         return <CheckCircle className="w-4 h-4" />;
@@ -137,14 +139,13 @@ export function MyComplaints() {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      open: { label: text[language].open, variant: "secondary" },
-      pending: { label: text[language].pending, variant: "secondary" },
-      "in-progress": { label: text[language].inProgress, variant: "default" },
+      open: { label: text[language].pending, variant: "secondary" },
+      in_review: { label: text[language].inReview, variant: "secondary" },
       resolved: { label: text[language].resolved, variant: "default" },
       escalated: { label: text[language].escalated, variant: "destructive" },
     };
 
-    const config = statusConfig[status] || statusConfig.pending;
+    const config = statusConfig[status] || statusConfig.open;
     return (
       <Badge variant={config.variant} className="gap-1">
         {getStatusIcon(status)}
@@ -187,9 +188,8 @@ export function MyComplaints() {
   const getProgressPercentage = (status) => {
     switch (status) {
       case "open":
-      case "pending":
         return 0;
-      case "in-progress":
+      case "in_review":
         return 50;
       case "resolved":
         return 100;
@@ -201,8 +201,15 @@ export function MyComplaints() {
   };
 
   const filteredComplaints = complaints.filter((complaint) => {
-    if (filterStatus !== "all" && complaint.status !== filterStatus) return false;
-    if (filterCategory !== "all" && complaint.category !== filterCategory) return false;
+    // Handle status filtering
+    let statusMatch = true;
+    if (filterStatus !== "all") {
+      statusMatch = complaint.status === filterStatus;
+    }
+
+    if (!statusMatch) return false;
+    if (filterCategory !== "all" && complaint.category !== filterCategory)
+      return false;
     if (
       searchQuery &&
       !complaint.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -253,12 +260,13 @@ export function MyComplaints() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{text[language].all}</SelectItem>
-                <SelectItem value="open">{text[language].open}</SelectItem>
-                <SelectItem value="pending">{text[language].pending}</SelectItem>
-                <SelectItem value="in-progress">
-                  {text[language].inProgress}
+                <SelectItem value="open">{text[language].pending}</SelectItem>
+                <SelectItem value="in_review">
+                  {text[language].inReview}
                 </SelectItem>
-                <SelectItem value="resolved">{text[language].resolved}</SelectItem>
+                <SelectItem value="resolved">
+                  {text[language].resolved}
+                </SelectItem>
                 <SelectItem value="escalated">
                   {text[language].escalated}
                 </SelectItem>
@@ -272,7 +280,9 @@ export function MyComplaints() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{text[language].all}</SelectItem>
-                <SelectItem value="academic">{text[language].academic}</SelectItem>
+                <SelectItem value="academic">
+                  {text[language].academic}
+                </SelectItem>
                 <SelectItem value="it">{text[language].it}</SelectItem>
                 <SelectItem value="transport">
                   {text[language].transport}
@@ -327,12 +337,13 @@ export function MyComplaints() {
                           {complaint.body || "No description provided"}
                         </p>
                         <p className="text-gray-500 dark:text-slate-500 text-xs">
-                          {text[language].date}: {formatDate(complaint.created_at)}
+                          {text[language].date}:{" "}
+                          {formatDate(complaint.created_at)}
                         </p>
                       </div>
 
                       {/* Status Badge */}
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         {getStatusBadge(complaint.status)}
                       </div>
                     </div>

@@ -188,7 +188,7 @@ export async function updateMyOpenComplaint(complaintId, updates = {}) {
     .from("complaints")
     .update(payload)
     .eq("id", complaintId)
-    .eq("student_id", user.id) // extra safety
+    .eq("student_id", user.id)
     .select("id, status")
     .single();
 
@@ -198,4 +198,103 @@ export async function updateMyOpenComplaint(complaintId, updates = {}) {
   }
 
   return data;
+}
+
+
+export async function listMyNotifications({ onlyUnread = false, limit = 50 } = {}) {
+  const user = await requireUser();
+
+  let q = supabase
+    .from("notifications")
+    .select("id, complaint_id, type, title, message, is_read, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (onlyUnread) q = q.eq("is_read", false);
+
+  const { data, error } = await q;
+
+  if (error) {
+    console.error("[student.listMyNotifications] error:", error);
+    throw error;
+  }
+
+  return data || [];
+}
+
+
+export async function getUnreadNotificationCount() {
+  const user = await requireUser();
+
+  const { count, error } = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("is_read", false);
+
+  if (error) {
+    console.error("[student.getUnreadNotificationCount] error:", error);
+    throw error;
+  }
+
+  return count ?? 0;
+}
+
+
+export async function markNotificationRead(notificationId) {
+  await requireUser();
+
+  if (!notificationId) throw new Error("notificationId is required");
+
+  const { error } = await supabase.rpc("mark_notification_read", {
+    notification_id: notificationId,
+  });
+
+  if (error) {
+    console.error("[student.markNotificationRead] error:", error);
+    throw error;
+  }
+
+  return true;
+}
+
+
+export async function markAllNotificationsRead() {
+  await requireUser();
+
+  const { error } = await supabase.rpc("mark_all_notifications_read");
+
+  if (error) {
+    console.error("[student.markAllNotificationsRead] error:", error);
+    throw error;
+  }
+
+  return true;
+}
+
+
+export async function subscribeToMyNotifications(onNewNotification) {
+  const user = await requireUser();
+
+  const channel = supabase
+    .channel(`notifications:${user.id}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "notifications",
+        filter: `user_id=eq.${user.id}`,
+      },
+      (payload) => {
+        // payload.new is the notification row
+        onNewNotification?.(payload.new);
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
 }
