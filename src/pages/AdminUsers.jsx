@@ -6,10 +6,10 @@ import { supabase } from "../lib/supabase";
 import { createUserAsAdmin } from "../lib/admin";
 
 export default function AdminUsers() {
-  // ========== TAB STATE ==========
+  // TAB STATE
   const [activeTab, setActiveTab] = useState("users"); // "users" or "departments"
 
-  // ========== USERS TAB STATE ==========
+  // USERS TAB STATE
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [search, setSearch] = useState("");
@@ -24,13 +24,13 @@ export default function AdminUsers() {
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState(null);
 
-  // ========== DEPARTMENTS TAB STATE ==========
+  // DEPARTMENTS TAB STATE
   const [coordinators, setCoordinators] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [loadingCoordinators, setLoadingCoordinators] = useState(true);
   const [deptMsg, setDeptMsg] = useState(null);
 
-  // ------------- LOAD USERS ON MOUNT -------------
+  // LOAD USERS ON MOUNT
   useEffect(() => {
     loadUsers();
   }, []);
@@ -58,7 +58,7 @@ export default function AdminUsers() {
     }
   }
 
-  // ------------- LOAD COORDINATORS & DEPARTMENTS (for Departments tab) -------------
+  // LOAD COORDINATORS & DEPARTMENTS (for Departments tab)
   useEffect(() => {
     if (activeTab === "departments") {
       fetchCoordinatorsAndDepartments();
@@ -109,7 +109,7 @@ export default function AdminUsers() {
     }
   }
 
-  // ------------- FILTERED USERS LIST (SEARCH + ROLE) -------------
+  // FILTERED USERS LIST (SEARCH + ROLE)
   const filteredUsers = useMemo(() => {
     const q = search.trim().toLowerCase();
     return users.filter((u) => {
@@ -122,7 +122,7 @@ export default function AdminUsers() {
     });
   }, [users, search, roleFilter]);
 
-  // ------------- CREATE USER HANDLER -------------
+  // CREATE USER HANDLER
   async function handleCreateUser(e) {
     e.preventDefault();
     setMsg(null);
@@ -174,7 +174,7 @@ export default function AdminUsers() {
     }
   }
 
-  // ------------- DELETE USER HANDLER -------------
+  // DELETE USER HANDLER 
   async function handleDeleteUser(userId, uniqueId) {
     const ok = window.confirm(
       `Are you sure you want to delete user "${uniqueId}"? This will remove their account from the system.`
@@ -212,7 +212,7 @@ export default function AdminUsers() {
     }
   }
 
-  // ------------- ASSIGN DEPARTMENT HANDLER -------------
+  // ASSIGN DEPARTMENT HANDLER 
   async function handleAssignDepartment(coordinatorId, coordinatorName, departmentId) {
     if (!departmentId) {
       setDeptMsg({ type: "error", text: "Please select a department" });
@@ -265,7 +265,7 @@ export default function AdminUsers() {
     }
   }
 
-  // ------------- GET AVAILABLE DEPARTMENTS -------------
+  // GET AVAILABLE DEPARTMENTS
   function getAvailableDepartments() {
     const assignedDeptIds = coordinators
       .filter((c) => c.department_id)
@@ -274,7 +274,7 @@ export default function AdminUsers() {
     return departments.filter((d) => !assignedDeptIds.includes(d.id));
   }
 
-  // ========== JSX ==========
+  // JSX     
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
@@ -286,7 +286,7 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* ========== TAB NAVIGATION ========== */}
+      {/* TAB NAVIGATION */}
       <div className="border-b border-border mb-6">
         <div className="flex gap-4">
           <button
@@ -315,7 +315,7 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      {/* ========== TAB CONTENT ========== */}
+      {/* TAB CONTENT */}
       {activeTab === "users" && (
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* LEFT: Users table */}

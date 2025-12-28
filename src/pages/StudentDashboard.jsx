@@ -174,7 +174,7 @@ export function StudentDashboard() {
     return date.toLocaleDateString("en-GB");
   };
 
-  // Show recent complaints (last 5)
+  // Show recent complaints - last 5
   const recentComplaints = complaints.slice(0, 5);
 
   return (

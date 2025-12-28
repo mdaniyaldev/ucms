@@ -17,7 +17,7 @@ export default function AdminDepartments() {
   const [creating, setCreating] = useState(false);
   const [msg, setMsg] = useState(null); // { type: "success" | "error", text: string }
 
-  // ---------- LOAD DEPARTMENTS ----------
+  // LOAD DEPARTMENTS
   useEffect(() => {
     let active = true;
 
@@ -52,7 +52,7 @@ export default function AdminDepartments() {
     };
   }, []);
 
-  // ---------- CREATE DEPARTMENT ----------
+  // CREATE DEPARTMENT 
   async function handleCreate(e) {
     e.preventDefault();
     setMsg(null);
@@ -97,7 +97,7 @@ export default function AdminDepartments() {
       setName("");
       setMsg({
         type: "success",
-        text: `✅ Department “${data.name}” created successfully.`,
+        text: ` Department “${data.name}” created successfully.`,
       });
     } catch (e) {
       console.error("[AdminDepartments] create error:", e);
