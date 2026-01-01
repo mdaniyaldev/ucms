@@ -13,6 +13,10 @@ import { StudentDashboard } from "./pages/StudentDashboard";
 import StudentLayout from "./components/student/StudentLayout";
 import { SubmitComplaintForm } from "./components/student/SubmitComplaintForm";
 import { MyComplaints } from "./pages/MyComplaints";
+import CoordinatorLayout from "./components/coordinator/CoordinatorLayout";
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
+import CoordinatorComplaints from "./pages/CoordinatorComplaints";
+import { Navigate } from "react-router-dom";
 
 function NotFound() {
   return (
@@ -62,7 +66,18 @@ export default createBrowserRouter([
   // Role-based routes for coordinators
   {
     element: <RoleRoute allow={["coordinator"]} />,
-    children: [{ path: "/coordinator", element: <div>Coordinator Panel</div> }],
+    children: [
+      { 
+        path: "/coordinator/dashboard", 
+        element: <CoordinatorLayout><CoordinatorDashboard /></CoordinatorLayout> 
+      },
+      { 
+        path: "/coordinator/complaints", 
+        element: <CoordinatorLayout><CoordinatorComplaints /></CoordinatorLayout> 
+      },
+      // Redirect /coordinator to dashboard
+      { path: "/coordinator", element: <Navigate to="/coordinator/dashboard" replace /> },
+    ],
   },
 
   // Admin-only routes

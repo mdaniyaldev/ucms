@@ -99,6 +99,7 @@ export default function Login() {
       // Role already checked in AuthContext; just redirect
       if (profile.role === "admin") navigate("/admin", { replace: true });
       else if (profile.role === "student") navigate("/student-dashboard", { replace: true });
+      else if (profile.role === "coordinator") navigate("/coordinator/dashboard", { replace: true });
       else navigate("/dashboard", { replace: true });
     } catch (err) {
       // 🔴 ROLE MISMATCH
