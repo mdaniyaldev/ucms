@@ -21,6 +21,20 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  AreaChart,
+  Area,
+} from "recharts";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -38,7 +52,8 @@ export default function CoordinatorDashboard() {
     overdue_count: 0,
     avg_resolution_hours: 0,
   });
-  const [recentComplaints, setRecentComplaints] = useState([]);
+  // We use this state to hold ALL complaints for charting
+  const [allComplaints, setAllComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -51,7 +66,7 @@ export default function CoordinatorDashboard() {
           listDepartmentComplaints(),
         ]);
         setStats(statsData);
-        setRecentComplaints(complaintsData?.slice(0, 5) || []);
+        setAllComplaints(complaintsData || []);
       } catch (err) {
         console.error("Error fetching coordinator data:", err);
         setError("Failed to load dashboard data. " + err.message);
@@ -62,6 +77,54 @@ export default function CoordinatorDashboard() {
 
     fetchData();
   }, []);
+
+  // --- CHART DATA PROCESSING ---
+
+  // 1. Status Distribution
+  const statusData = [
+    { name: "Pending", value: parseInt(stats.open_count || 0), color: "#f59e0b" },
+    { name: "In Review", value: parseInt(stats.in_review_count || 0), color: "#3b82f6" },
+    { name: "Resolved", value: parseInt(stats.resolved_count || 0), color: "#22c55e" },
+  ].filter((d) => d.value > 0);
+
+  // 2. Category Distribution
+  // Group by category string
+  const categoryCounts = allComplaints.reduce((acc, c) => {
+    const cat = c.category || "Uncategorized";
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+  const categoryData = Object.keys(categoryCounts).map((cat) => ({
+    name: cat.charAt(0).toUpperCase() + cat.slice(1), // Capitalize
+    value: categoryCounts[cat],
+  }));
+
+  // 3. Weekly Trends
+  // Group by date (last 7 days)
+  const getLast7Days = () => {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().split("T")[0]); // YYYY-MM-DD
+    }
+    return days;
+  };
+  const last7Days = getLast7Days();
+  
+  const trendData = last7Days.map((dateStr) => {
+    // Count complaints created on this date
+    const count = allComplaints.filter((c) => 
+        c.created_at?.startsWith(dateStr)
+    ).length;
+    // Format date for display (e.g. "Mon 12")
+    const displayDate = new Date(dateStr).toLocaleDateString("en-US", { weekday: "short", day: "numeric" });
+    return {
+        date: displayDate,
+        complaints: count,
+    };
+  });
+
 
   const statCards = [
     {
@@ -110,6 +173,9 @@ export default function CoordinatorDashboard() {
     return new Date(dateString).toLocaleDateString("en-GB");
   };
 
+  // Recent complaints slice
+  const recentComplaints = allComplaints.slice(0, 5);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -150,7 +216,90 @@ export default function CoordinatorDashboard() {
         })}
       </div>
 
-        {/* Avg Resolution Time Card? Maybe later. */}
+      {/* CHARTS ROW */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Weekly Activity Area Chart */}
+        <Card>
+            <CardHeader>
+                <CardTitle>Weekly Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={trendData}>
+                            <defs>
+                                <linearGradient id="colorComplaints" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                </linearGradient>
+                            </defs>
+                            <XAxis dataKey="date" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="complaints" stroke="#3b82f6" fillOpacity={1} fill="url(#colorComplaints)" />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            </CardContent>
+        </Card>
+
+        {/* Status Breakdown Pie Chart */}
+        <Card>
+            <CardHeader>
+                <CardTitle>Status Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="h-[250px] w-full flex items-center justify-center">
+                    {statusData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={statusData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {statusData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36}/>
+                            </PieChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="text-gray-400 text-sm">No data available</div>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
+      </div>
+
+      {/* Category Bar Chart */}
+       {/* <Card>
+            <CardHeader>
+                <CardTitle>Complaints by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="h-[250px] w-full">
+                    {categoryData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={categoryData} layout="vertical" margin={{ left: 40 }}>
+                                <XAxis type="number" hide />
+                                <YAxis dataKey="name" type="category" width={100} fontSize={12} tickLine={false} axisLine={false} />
+                                <Tooltip cursor={{fill: 'transparent'}} />
+                                <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="text-center text-gray-400 text-sm pt-8">No category data available</div>
+                    )}
+                </div>
+            </CardContent>
+        </Card> */}
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
