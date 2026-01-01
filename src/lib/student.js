@@ -46,6 +46,31 @@ export async function listDepartments() {
   return data; // array of { id, name }
 }
 
+
+export async function listDepartmentsWithCategories() {
+  const { data, error } = await supabase
+    .from("departments")
+    .select(
+      `
+      id,
+      name,
+      department_categories(category)
+    `
+    )
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("[student.listDepartmentsWithCategories] error:", error);
+    throw error;
+  }
+
+  return data.map((dept) => ({
+    id: dept.id,
+    name: dept.name,
+    categories: dept.department_categories?.map((dc) => dc.category) || [],
+  }));
+}
+
 export async function createComplaint({ title, body, category, departmentId }) {
   const user = await requireUser();
 

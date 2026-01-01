@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { BookOpen, Laptop, Bus, Building2, Upload, Send, AlertCircle, CheckCircle } from 'lucide-react';
-import { createComplaint, listDepartments } from '../../lib/student';
+import { createComplaint, listDepartmentsWithCategories } from '../../lib/student';
 import { useNavigate } from 'react-router-dom';
 
 export function SubmitComplaintForm({ language = 'en' }) {
@@ -47,6 +47,7 @@ export function SubmitComplaintForm({ language = 'en' }) {
       requiredField: 'This field is required',
       backToDashboard: 'Back to Dashboard',
       chooseFiles: 'Choose Files',
+      noDepartmentsAvailable: 'No departments available for this category',
     },
     ur: {
       title: 'نئی شکایت جمع کرائیں',
@@ -75,6 +76,7 @@ export function SubmitComplaintForm({ language = 'en' }) {
       requiredField: 'یہ فیلڈ ضروری ہے',
       backToDashboard: 'ڈیش بورڈ پر واپس جائیں',
       chooseFiles: 'فائلیں منتخب کریں',
+      noDepartmentsAvailable: 'اس قسم کے لیے کوئی محکمہ دستیاب نہیں',
     },
   };
 
@@ -85,12 +87,12 @@ export function SubmitComplaintForm({ language = 'en' }) {
     { value: 'administrative', label: text[language].administrative, icon: Building2 },
   ];
 
-  // Fetch departments on component mount
+  // Fetch departments with their allowed categories on component mount
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
         setDepartmentsLoading(true);
-        const data = await listDepartments();
+        const data = await listDepartmentsWithCategories();
         setDepartments(data || []);
       } catch (err) {
         console.error('Error fetching departments:', err);
@@ -103,10 +105,10 @@ export function SubmitComplaintForm({ language = 'en' }) {
     fetchDepartments();
   }, []);
 
-  // Filter departments by category
+  // Filter departments by category - only show departments that support this category
   const categoryDepartments = departments.filter((dept) => {
-    // This assumes departments have a category field, adjust based on your schema
-    return true; // For now, show all departments
+    if (!category) return false;
+    return dept.categories.includes(category);
   });
 
   const handleFileChange = (e) => {
@@ -172,7 +174,22 @@ export function SubmitComplaintForm({ language = 'en' }) {
       }, 2000);
     } catch (err) {
       console.error('Error submitting complaint:', err);
-      setError(err.message || text[language].errorOccurred);
+      
+      // Handle category/department mismatch error more gracefully
+      const errorMsg = err.message?.toLowerCase() || '';
+      if (
+        errorMsg.includes('category') ||
+        errorMsg.includes('not allowed') ||
+        errorMsg.includes('operator does not exist')
+      ) {
+        const categoryLabel = categories.find((c) => c.value === category)?.label || category;
+        setError(
+          `The "${categoryLabel}" category cannot be submitted to the "${department}" department. ` +
+          `Please select a compatible department for this category.`
+        );
+      } else {
+        setError(err.message || text[language].errorOccurred);
+      }
     } finally {
       setLoading(false);
     }
@@ -282,12 +299,16 @@ export function SubmitComplaintForm({ language = 'en' }) {
                   id="department"
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  disabled={!category || departmentsLoading}
+                  disabled={!category || departmentsLoading || categoryDepartments.length === 0}
                   required
                   className="w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">{text[language].selectDepartment}</option>
-                  {departments.map((dept) => (
+                  <option value="">
+                    {categoryDepartments.length === 0 && category
+                      ? text[language].noDepartmentsAvailable
+                      : text[language].selectDepartment}
+                  </option>
+                  {categoryDepartments.map((dept) => (
                     <option key={dept.id} value={dept.name}>
                       {dept.name}
                     </option>
