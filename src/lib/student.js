@@ -86,10 +86,7 @@ export async function createComplaint({ title, body, category, departmentId }) {
     throw new Error("Department is required");
   }
 
-  // set deadline = 5 days from now
-  const dueAt = new Date();
-  dueAt.setDate(dueAt.getDate() + 5);
-
+  
   const { data, error } = await supabase
     .from("complaints")
     .insert({
@@ -99,7 +96,6 @@ export async function createComplaint({ title, body, category, departmentId }) {
       department_id: departmentId,
       student_id: user.id, // RLS check uses this
       status: "open",
-      due_at: dueAt.toISOString(),
     })
     .select("id")
     .single();
@@ -127,7 +123,6 @@ export async function listMyComplaints() {
       department_id,
       created_at,
       updated_at,
-      due_at,
       resolved_at,
       escalated_at,
       priority,
