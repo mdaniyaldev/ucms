@@ -100,6 +100,7 @@ export default function Login() {
       if (profile.role === "admin") navigate("/admin", { replace: true });
       else if (profile.role === "student") navigate("/student-dashboard", { replace: true });
       else if (profile.role === "coordinator") navigate("/coordinator/dashboard", { replace: true });
+      else if (profile.role === "faculty") navigate("/faculty/dashboard", { replace: true });
       else navigate("/dashboard", { replace: true });
     } catch (err) {
       // 🔴 ROLE MISMATCH
@@ -124,7 +125,7 @@ export default function Login() {
       // 🔁 Normal errors (invalid credentials / server errors)
       const msg =
         err?.message?.toLowerCase()?.includes("invalid login credentials") ||
-        err?.message?.toLowerCase()?.includes("invalid login")
+          err?.message?.toLowerCase()?.includes("invalid login")
           ? "Invalid University ID or password"
           : err?.message || "Login failed. Try again.";
 
@@ -261,11 +262,10 @@ export default function Login() {
                 {["student", "faculty", "coordinator", "admin"].map((role) => (
                   <label
                     key={role}
-                    className={`flex items-center justify-center border rounded-lg py-2 text-sm font-medium cursor-pointer transition ${
-                      selectedRole === role
+                    className={`flex items-center justify-center border rounded-lg py-2 text-sm font-medium cursor-pointer transition ${selectedRole === role
                         ? "bg-blue-600 text-white border-blue-600"
                         : "border-gray-300 hover:bg-gray-100 text-gray-700"
-                    }`}
+                      }`}
                   >
                     <input
                       type="radio"

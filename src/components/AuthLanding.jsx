@@ -9,6 +9,9 @@ export default function AuthLanding() {
   useEffect(() => {
     if (loading) return;
     if (user?.role === "admin") navigate("/admin", { replace: true });
+    else if (user?.role === "coordinator") navigate("/coordinator/dashboard", { replace: true });
+    else if (user?.role === "faculty") navigate("/faculty/dashboard", { replace: true });
+    else if (user?.role === "student") navigate("/student-dashboard", { replace: true });
     else if (user) navigate("/dashboard", { replace: true });
     else navigate("/login", { replace: true });
   }, [loading, user, navigate]);

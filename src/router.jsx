@@ -4,7 +4,7 @@ import Dashboard from "./pages/Dashboard"; // admin dashboard or general dashboa
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleRoute from "./components/RoleRoute";
 import AdminDashboard from "./pages/AdminDashboard";
-import AdminUsers from "./pages/AdminUsers";   
+import AdminUsers from "./pages/AdminUsers";
 import AuthLanding from "./components/AuthLanding";
 import AdminComplaints from "./pages/AdminComplaints";
 import AdminDepartments from "./pages/AdminDepartments";
@@ -17,6 +17,11 @@ import CoordinatorLayout from "./components/coordinator/CoordinatorLayout";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorComplaints from "./pages/CoordinatorComplaints";
 import { Navigate } from "react-router-dom";
+// Faculty imports
+import FacultyLayout from "./components/faculty/FacultyLayout";
+import { FacultyDashboard } from "./pages/FacultyDashboard";
+import { FacultyComplaints } from "./pages/FacultyComplaints";
+import { FacultySubmitComplaintForm } from "./components/faculty/FacultySubmitComplaintForm";
 
 function NotFound() {
   return (
@@ -40,43 +45,64 @@ export default createBrowserRouter([
 
   // Authenticated routes (any logged-in user)
   {
-    element: <ProtectedRoute />, 
+    element: <ProtectedRoute />,
     children: [{ path: "/dashboard", element: <Dashboard /> }]  // Admin route
   },
 
   // Role-based routes for students
-{
-  element: <RoleRoute allow={["student"]} />,
-  children: [
-    { 
-      path: "/student-dashboard", 
-      element: <StudentLayout><StudentDashboard /></StudentLayout>
-    },
-    {
-      path: "/student/submit-complaint",
-      element: <StudentLayout><SubmitComplaintForm /></StudentLayout>
-    },
-    {
-      path: "/student/complaints",
-      element: <StudentLayout><MyComplaints /></StudentLayout>
-    },
-  ],
-},
+  {
+    element: <RoleRoute allow={["student"]} />,
+    children: [
+      {
+        path: "/student-dashboard",
+        element: <StudentLayout><StudentDashboard /></StudentLayout>
+      },
+      {
+        path: "/student/submit-complaint",
+        element: <StudentLayout><SubmitComplaintForm /></StudentLayout>
+      },
+      {
+        path: "/student/complaints",
+        element: <StudentLayout><MyComplaints /></StudentLayout>
+      },
+    ],
+  },
 
   // Role-based routes for coordinators
   {
     element: <RoleRoute allow={["coordinator"]} />,
     children: [
-      { 
-        path: "/coordinator/dashboard", 
-        element: <CoordinatorLayout><CoordinatorDashboard /></CoordinatorLayout> 
+      {
+        path: "/coordinator/dashboard",
+        element: <CoordinatorLayout><CoordinatorDashboard /></CoordinatorLayout>
       },
-      { 
-        path: "/coordinator/complaints", 
-        element: <CoordinatorLayout><CoordinatorComplaints /></CoordinatorLayout> 
+      {
+        path: "/coordinator/complaints",
+        element: <CoordinatorLayout><CoordinatorComplaints /></CoordinatorLayout>
       },
       // Redirect /coordinator to dashboard
       { path: "/coordinator", element: <Navigate to="/coordinator/dashboard" replace /> },
+    ],
+  },
+
+  // Role-based routes for faculty
+  {
+    element: <RoleRoute allow={["faculty"]} />,
+    children: [
+      {
+        path: "/faculty/dashboard",
+        element: <FacultyLayout><FacultyDashboard /></FacultyLayout>
+      },
+      {
+        path: "/faculty/submit-complaint",
+        element: <FacultyLayout><FacultySubmitComplaintForm /></FacultyLayout>
+      },
+      {
+        path: "/faculty/complaints",
+        element: <FacultyLayout><FacultyComplaints /></FacultyLayout>
+      },
+      // Redirect /faculty to dashboard
+      { path: "/faculty", element: <Navigate to="/faculty/dashboard" replace /> },
     ],
   },
 

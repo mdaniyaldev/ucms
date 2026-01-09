@@ -6,9 +6,13 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // If an admin somehow lands here, push them to /admin
+  // Role-based redirects
   useEffect(() => {
-    if (user?.role === "admin") navigate("/admin", { replace: true });
+    if (!user) return;
+    if (user.role === "admin") navigate("/admin", { replace: true });
+    else if (user.role === "coordinator") navigate("/coordinator/dashboard", { replace: true });
+    else if (user.role === "faculty") navigate("/faculty/dashboard", { replace: true });
+    else if (user.role === "student") navigate("/student-dashboard", { replace: true });
   }, [user, navigate]);
 
   return (
