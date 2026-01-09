@@ -86,7 +86,6 @@ export async function createComplaint({ title, body, category, departmentId }) {
     throw new Error("Department is required");
   }
 
-  
   const { data, error } = await supabase
     .from("complaints")
     .insert({
@@ -94,7 +93,7 @@ export async function createComplaint({ title, body, category, departmentId }) {
       body: body ?? "",
       category,
       department_id: departmentId,
-      student_id: user.id, // RLS check uses this
+      student_id: user.id,
       status: "open",
     })
     .select("id")

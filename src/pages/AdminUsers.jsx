@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Loader2, Plus, Trash2, Users, UserCheck, AlertCircle, Building2 } from "lucide-react";
+import { Search, Loader2, Plus, Trash2, Users, UserCheck, AlertCircle, Building2, Mail } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { createUserAsAdmin } from "../lib/admin";
 
@@ -18,6 +18,7 @@ export default function AdminUsers() {
   const [form, setForm] = useState({
     uniqueId: "",
     password: "",
+    email: "", // NEW: Email field
     role: "student",
   });
 
@@ -41,7 +42,7 @@ export default function AdminUsers() {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, unique_id, role, department_id, created_at")
+        .select("id, unique_id, role, email, email_verified, department_id, created_at")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -117,12 +118,13 @@ export default function AdminUsers() {
       const matchesSearch =
         !q ||
         u.unique_id?.toLowerCase().includes(q) ||
-        u.role?.toLowerCase().includes(q);
+        u.role?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q);
       return matchesRole && matchesSearch;
     });
   }, [users, search, roleFilter]);
 
-  // CREATE USER HANDLER
+  // CREATE USER HANDLER (UPDATED WITH EMAIL)
   async function handleCreateUser(e) {
     e.preventDefault();
     setMsg(null);
@@ -135,6 +137,15 @@ export default function AdminUsers() {
       return;
     }
 
+    // Validate email if provided
+    if (form.email && !form.email.includes('@')) {
+      setMsg({
+        type: "error",
+        text: "Please provide a valid email address.",
+      });
+      return;
+    }
+
     if (!["student", "faculty", "coordinator", "admin"].includes(form.role)) {
       setMsg({ type: "error", text: "Invalid role selected." });
       return;
@@ -143,6 +154,7 @@ export default function AdminUsers() {
     try {
       setSubmitting(true);
 
+      // Create user (existing function)
       const result = await createUserAsAdmin({
         uniqueId: form.uniqueId.trim(),
         password: form.password,
@@ -150,14 +162,31 @@ export default function AdminUsers() {
         department_id: null, // Always null during signup
       });
 
+      // Update profile with email if provided
+      if (form.email) {
+        const { error: emailError } = await supabase
+          .from('profiles')
+          .update({
+            email: form.email.trim(),
+            email_verified: true // Auto-verify for admin-created users
+          })
+          .eq('id', result.user_id);
+
+        if (emailError) {
+          console.warn('[AdminUsers] Failed to set email:', emailError);
+          // Don't throw - user is created, just email not set
+        }
+      }
+
       setMsg({
         type: "success",
-        text: `User created (id: ${result.user_id})`,
+        text: `User created successfully! ${form.email ? 'Email notifications enabled.' : ''}`,
       });
 
       setForm({
         uniqueId: "",
         password: "",
+        email: "",
         role: "student",
       });
 
@@ -343,7 +372,7 @@ export default function AdminUsers() {
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
                     <input
                       type="text"
-                      placeholder="Search by ID or role..."
+                      placeholder="Search by ID, email..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       className="pl-7 pr-3 py-1.5 text-sm rounded-lg border border-border bg-background text-base-light focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -372,10 +401,10 @@ export default function AdminUsers() {
                           Unique ID
                         </th>
                         <th className="text-left px-3 py-2 font-medium text-subtle text-xs">
-                          Role
+                          Email
                         </th>
                         <th className="text-left px-3 py-2 font-medium text-subtle text-xs">
-                          Department ID
+                          Role
                         </th>
                         <th className="text-left px-3 py-2 font-medium text-subtle text-xs">
                           Created At
@@ -394,11 +423,21 @@ export default function AdminUsers() {
                           <td className="px-3 py-2 font-medium text-base-light">
                             {u.unique_id}
                           </td>
+                          <td className="px-3 py-2 text-sm">
+                            {u.email ? (
+                              <div className="flex items-center gap-1.5">
+                                <Mail className="w-3 h-3 text-emerald-400" />
+                                <span className="text-base-light">{u.email}</span>
+                                {u.email_verified && (
+                                  <span className="text-emerald-400 text-xs">✓</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-rose-400 text-xs">No email</span>
+                            )}
+                          </td>
                           <td className="px-3 py-2 capitalize text-base-light">
                             {u.role || "-"}
-                          </td>
-                          <td className="px-3 py-2 text-xs text-subtle">
-                            {u.department_id || "—"}
                           </td>
                           <td className="px-3 py-2 text-xs text-subtle">
                             {u.created_at
@@ -476,6 +515,29 @@ export default function AdminUsers() {
                       setForm((f) => ({ ...f, password: e.target.value }))
                     }
                   />
+                </div>
+
+                {/* Email - NEW FIELD */}
+                <div>
+                  <label className="block text-xs font-medium text-subtle mb-1">
+                    Email Address (Optional)
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
+                    <input
+                      type="email"
+                      className="w-full rounded-lg border border-border bg-background pl-9 pr-3 py-2 text-sm text-base-light focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      placeholder="user@example.com"
+                      value={form.email}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, email: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <p className="text-xs text-subtle mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    User will receive email notifications if provided
+                  </p>
                 </div>
 
                 {/* Role */}
