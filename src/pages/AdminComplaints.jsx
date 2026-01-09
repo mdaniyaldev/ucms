@@ -64,7 +64,7 @@ export default function AdminComplaints() {
     try {
       setUpdating(id);
       await updateComplaintStatus(id, newStatus);
-      
+
       // Update local state
       setComplaints((prev) =>
         prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c))
@@ -98,7 +98,8 @@ export default function AdminComplaints() {
     { label: "Description", key: "body" },
     { label: "Status", key: "status" },
     { label: "Category", key: "category" },
-    { label: "Student ID", key: "student.unique_id" },
+    { label: "Submitter Role", key: "student.role" },
+    { label: "Submitter ID", key: "student.unique_id" },
     { label: "Department", key: "department.name" },
     { label: "Created At", key: "created_at" },
   ];
@@ -156,7 +157,7 @@ export default function AdminComplaints() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Complaints Management</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              View, filter, and manage student complaints system-wide.
+              View, filter, and manage reported issues system-wide.
             </p>
           </div>
 
@@ -300,7 +301,10 @@ export default function AdminComplaints() {
                           <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                             <div className="flex items-center gap-1">
                               <User className="w-3 h-3" />
-                              <span>{complaint.student?.unique_id || "Unknown"}</span>
+                              <span>
+                                {complaint.student?.role === 'faculty' ? 'Faculty: ' : 'Student: '}
+                                {complaint.student?.unique_id || "Unknown"}
+                              </span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Building2 className="w-3 h-3" />
@@ -388,7 +392,9 @@ export default function AdminComplaints() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Student</label>
+                  <label className="text-xs font-medium text-slate-500">
+                    {selectedComplaint.student?.role === 'faculty' ? 'Faculty' : 'Student'}
+                  </label>
                   <p className="text-sm">{selectedComplaint.student?.unique_id || "Unknown"}</p>
                 </div>
                 <div>

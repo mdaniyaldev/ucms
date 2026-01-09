@@ -93,7 +93,7 @@ export async function getAllComplaints(filters = {}) {
       updated_at,
       due_at,
       resolved_at,
-      student:profiles!student_id(unique_id, id),
+      student:profiles!student_id(unique_id, id, role),
       department:departments!department_id(name, id)
     `)
     .order("created_at", { ascending: false });

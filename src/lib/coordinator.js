@@ -72,7 +72,7 @@ export async function listDepartmentComplaints() {
       due_at,
       resolved_at,
       priority,
-      student:profiles!student_id(unique_id)
+      student:profiles!student_id(unique_id, role)
     `
         )
         .eq("department_id", user.department_id)

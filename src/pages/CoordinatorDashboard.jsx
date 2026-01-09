@@ -104,24 +104,24 @@ export default function CoordinatorDashboard() {
   const getLast7Days = () => {
     const days = [];
     for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        days.push(d.toISOString().split("T")[0]); // YYYY-MM-DD
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d.toISOString().split("T")[0]); // YYYY-MM-DD
     }
     return days;
   };
   const last7Days = getLast7Days();
-  
+
   const trendData = last7Days.map((dateStr) => {
     // Count complaints created on this date
-    const count = allComplaints.filter((c) => 
-        c.created_at?.startsWith(dateStr)
+    const count = allComplaints.filter((c) =>
+      c.created_at?.startsWith(dateStr)
     ).length;
     // Format date for display (e.g. "Mon 12")
     const displayDate = new Date(dateStr).toLocaleDateString("en-US", { weekday: "short", day: "numeric" });
     return {
-        date: displayDate,
-        complaints: count,
+      date: displayDate,
+      complaints: count,
     };
   });
 
@@ -188,7 +188,7 @@ export default function CoordinatorDashboard() {
           </p>
         </div>
         <Button onClick={() => navigate("/coordinator/complaints")}>
-            View All Complaints
+          View All Complaints
         </Button>
       </div>
 
@@ -220,66 +220,66 @@ export default function CoordinatorDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weekly Activity Area Chart */}
         <Card>
-            <CardHeader>
-                <CardTitle>Weekly Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="h-[250px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={trendData}>
-                            <defs>
-                                <linearGradient id="colorComplaints" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                                </linearGradient>
-                            </defs>
-                            <XAxis dataKey="date" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                            <Tooltip />
-                            <Area type="monotone" dataKey="complaints" stroke="#3b82f6" fillOpacity={1} fill="url(#colorComplaints)" />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-            </CardContent>
+          <CardHeader>
+            <CardTitle>Weekly Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[250px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData}>
+                  <defs>
+                    <linearGradient id="colorComplaints" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip />
+                  <Area type="monotone" dataKey="complaints" stroke="#3b82f6" fillOpacity={1} fill="url(#colorComplaints)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Status Breakdown Pie Chart */}
         <Card>
-            <CardHeader>
-                <CardTitle>Status Distribution</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="h-[250px] w-full flex items-center justify-center">
-                    {statusData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={statusData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={5}
-                                    dataKey="value"
-                                >
-                                    {statusData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend verticalAlign="bottom" height={36}/>
-                            </PieChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="text-gray-400 text-sm">No data available</div>
-                    )}
-                </div>
-            </CardContent>
+          <CardHeader>
+            <CardTitle>Status Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[250px] w-full flex items-center justify-center">
+              {statusData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" height={36} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-gray-400 text-sm">No data available</div>
+              )}
+            </div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Category Bar Chart */}
-       {/* <Card>
+      {/* <Card>
             <CardHeader>
                 <CardTitle>Complaints by Category</CardTitle>
             </CardHeader>
@@ -316,7 +316,7 @@ export default function CoordinatorDashboard() {
           ) : error ? (
             <div className="text-center py-8 text-red-600">{error}</div>
           ) : recentComplaints.length === 0 ? (
-             <div className="text-center py-8 text-gray-600 dark:text-slate-400">
+            <div className="text-center py-8 text-gray-600 dark:text-slate-400">
               No complaints found.
             </div>
           ) : (
@@ -325,7 +325,7 @@ export default function CoordinatorDashboard() {
                 <TableRow>
                   <TableHead>ID</TableHead>
                   <TableHead>Title</TableHead>
-                  <TableHead>Student ID</TableHead>
+                  <TableHead>Submitter</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -339,7 +339,10 @@ export default function CoordinatorDashboard() {
                   >
                     <TableCell className="text-xs">{c.id.slice(0, 8)}</TableCell>
                     <TableCell className="font-medium">{c.title}</TableCell>
-                    <TableCell>{c.student?.unique_id || "N/A"}</TableCell>
+                    <TableCell className="text-xs">
+                      {c.student?.role === 'faculty' ? 'Faculty: ' : 'Student: '}
+                      {c.student?.unique_id || "N/A"}
+                    </TableCell>
                     <TableCell>{formatDate(c.created_at)}</TableCell>
                     <TableCell>{getStatusBadge(c.status)}</TableCell>
                   </TableRow>
