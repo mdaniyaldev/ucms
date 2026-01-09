@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { listMyComplaints } from "../lib/student";
+import { listMyComplaints, subscribeToMyComplaints } from "../lib/student";
 import { useAuth } from "../context/AuthContext";
 
 export function MyComplaints() {
@@ -105,22 +105,26 @@ export function MyComplaints() {
 
   // Fetch complaints on component mount
   useEffect(() => {
-    const fetchComplaints = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await listMyComplaints();
-        setComplaints(data || []);
-      } catch (err) {
-        console.error("Error fetching complaints:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  let unsubscribe;
 
-    fetchComplaints();
-  }, []);
+  const fetchComplaints = async () => {
+    setLoading(true);
+    const data = await listMyComplaints();
+    setComplaints(data || []);
+    setLoading(false);
+  };
+
+  fetchComplaints();
+
+  (async () => {
+    unsubscribe = await subscribeToMyComplaints(() => {
+      fetchComplaints(); // refresh when cron escalates
+    });
+  })();
+
+  return () => unsubscribe?.();
+}, []);
+
 
   const getStatusIcon = (status) => {
     switch (status) {

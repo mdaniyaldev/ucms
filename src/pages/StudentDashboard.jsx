@@ -23,7 +23,7 @@ import {
 } from "../components/ui/table";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { listMyComplaints } from "../lib/student";
+import { listMyComplaints, subscribeToMyComplaints } from "../lib/student";
 
 export function StudentDashboard() {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-   const text = {
+  const text = {
     en: {
       welcome: "Welcome back",
       overview: "Complaints Overview",
@@ -77,22 +77,26 @@ export function StudentDashboard() {
 
   // Fetch complaints on component mount
   useEffect(() => {
+    let unsubscribe;
+
     const fetchComplaints = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await listMyComplaints();
-        setComplaints(data || []);
-      } catch (err) {
-        console.error("Error fetching complaints:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      const data = await listMyComplaints();
+      setComplaints(data || []);
+      setLoading(false);
     };
 
     fetchComplaints();
+
+    (async () => {
+      unsubscribe = await subscribeToMyComplaints(() => {
+        fetchComplaints(); // refresh when cron escalates
+      });
+    })();
+
+    return () => unsubscribe?.();
   }, []);
+
 
   // Calculate stats from real data
   const stats = [

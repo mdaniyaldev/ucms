@@ -317,3 +317,28 @@ export async function subscribeToMyNotifications(onNewNotification) {
     supabase.removeChannel(channel);
   };
 }
+
+
+export async function subscribeToMyComplaints(onChange) {
+  const user = await requireUser();
+
+  const channel = supabase
+    .channel(`complaints:${user.id}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "complaints",
+        filter: `student_id=eq.${user.id}`,
+      },
+      (payload) => {
+        onChange?.(payload.new);
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}

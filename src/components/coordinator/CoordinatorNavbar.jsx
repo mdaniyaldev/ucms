@@ -1,10 +1,12 @@
 import { Sun, Moon, Menu } from "lucide-react";
 import { useTheme } from "../theme-provider";
+import { useAuth } from "../../context/AuthContext";
 // import { useNotifications } from "../../context/NotificationContext"; // Re-enable if we want notification bell for coordinators
 // import NotificationPanel from "../student/NotificationPanel"; // May need a separate one or reuse
 
 export default function CoordinatorNavbar({ setMobileOpen }) {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   // const { unreadCount } = useNotifications();
 
   const toggleTheme = () => {
@@ -29,9 +31,16 @@ export default function CoordinatorNavbar({ setMobileOpen }) {
         >
           <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />
         </button>
-        <h1 className="font-semibold text-lg text-slate-800 dark:text-slate-100">
-          Coordinator Portal
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="font-semibold text-lg text-slate-800 dark:text-slate-100">
+            Coordinator Portal
+          </h1>
+          {user?.department_name && (
+            <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+              {user.department_name}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Right: theme toggle */}

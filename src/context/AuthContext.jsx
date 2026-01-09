@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
       console.log("[Auth] fetchProfile for userId =", userId);
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, unique_id, role, department_id")
+        .select("id, unique_id, role, department_id, department:departments(name)")
         .eq("id", userId)
         .single();
 
@@ -25,8 +25,15 @@ export function AuthProvider({ children }) {
         return null;
       }
 
-      console.log("[Auth] fetchProfile result:", data);
-      return data ?? null;
+      // Flatten department name for easier access
+      const profile = {
+        ...data,
+        department_name: data?.department?.name || null,
+      };
+      delete profile.department; // Remove nested object
+
+      console.log("[Auth] fetchProfile result:", profile);
+      return profile ?? null;
     } catch (e) {
       console.error("[Auth] fetchProfile exception:", e);
       return null;
