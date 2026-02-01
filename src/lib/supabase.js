@@ -87,8 +87,3 @@ export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
-
-// TEMP: Expose supabase to window for debugging ONLY
-if (typeof window !== "undefined") {
-  window.supabase = supabase;
-}
