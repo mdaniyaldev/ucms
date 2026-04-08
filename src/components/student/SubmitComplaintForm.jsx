@@ -87,7 +87,6 @@ export function SubmitComplaintForm({ language = 'en' }) {
     { value: 'administrative', label: text[language].administrative, icon: Building2 },
   ];
 
-  // Fetch departments with their allowed categories on component mount
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -105,7 +104,6 @@ export function SubmitComplaintForm({ language = 'en' }) {
     fetchDepartments();
   }, []);
 
-  // Filter departments by category - only show departments that support this category
   const categoryDepartments = departments.filter((dept) => {
     if (!category) return false;
     return dept.categories.includes(category);
@@ -122,7 +120,7 @@ export function SubmitComplaintForm({ language = 'en' }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     if (!title.trim()) {
       setError(text[language].requiredField);
@@ -154,12 +152,21 @@ export function SubmitComplaintForm({ language = 'en' }) {
       }
 
       // Create complaint
-      await createComplaint({
+      const complaint = await createComplaint({
         title: title.trim(),
         body: description.trim(),
         category,
         departmentId,
       });
+
+      // If files are uploaded, upload them to the Supabase storage
+      if (uploadedFiles.length > 0) {
+        const { uploadComplaintAttachments } = await import("../../lib/attachments");
+        await uploadComplaintAttachments({
+          complaintId: complaint.id,
+          files: uploadedFiles,
+        });
+      }
 
       setSuccess(true);
       setTitle('');
@@ -174,22 +181,7 @@ export function SubmitComplaintForm({ language = 'en' }) {
       }, 2000);
     } catch (err) {
       console.error('Error submitting complaint:', err);
-      
-      // Handle category/department mismatch error more gracefully
-      const errorMsg = err.message?.toLowerCase() || '';
-      if (
-        errorMsg.includes('category') ||
-        errorMsg.includes('not allowed') ||
-        errorMsg.includes('operator does not exist')
-      ) {
-        const categoryLabel = categories.find((c) => c.value === category)?.label || category;
-        setError(
-          `The "${categoryLabel}" category cannot be submitted to the "${department}" department. ` +
-          `Please select a compatible department for this category.`
-        );
-      } else {
-        setError(err.message || text[language].errorOccurred);
-      }
+      setError(err.message || text[language].errorOccurred);
     } finally {
       setLoading(false);
     }
@@ -303,11 +295,7 @@ export function SubmitComplaintForm({ language = 'en' }) {
                   required
                   className="w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">
-                    {categoryDepartments.length === 0 && category
-                      ? text[language].noDepartmentsAvailable
-                      : text[language].selectDepartment}
-                  </option>
+                  <option value="">{categoryDepartments.length === 0 && category ? text[language].noDepartmentsAvailable : text[language].selectDepartment}</option>
                   {categoryDepartments.map((dept) => (
                     <option key={dept.id} value={dept.name}>
                       {dept.name}

@@ -1,22 +1,7 @@
 import { useState, useEffect } from "react";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "../ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import {
-    BookOpen,
-    Laptop,
-    Bus,
-    Building2,
-    Upload,
-    Send,
-    AlertCircle,
-    CheckCircle,
-} from "lucide-react";
+import { BookOpen, Laptop, Bus, Building2, Upload, Send, AlertCircle, CheckCircle } from "lucide-react";
 import { createComplaint, listDepartmentsWithCategories } from "../../lib/faculty";
 import { useNavigate } from "react-router-dom";
 
@@ -54,8 +39,7 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
             submit: "Submit Issue",
             cancel: "Cancel",
             successMessage: "Issue reported successfully!",
-            successDescription:
-                "Your issue has been registered and assigned to the relevant department.",
+            successDescription: "Your issue has been registered and assigned to the relevant department.",
             errorOccurred: "Error occurred",
             pleaseSelectCategory: "Please select a category",
             pleaseSelectDepartment: "Please select a department",
@@ -84,8 +68,7 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
             submit: "مسئلہ جمع کرائیں",
             cancel: "منسوخ کریں",
             successMessage: "مسئلہ کامیابی سے رپورٹ ہو گیا!",
-            successDescription:
-                "آپ کا مسئلہ رجسٹر ہو گیا ہے اور متعلقہ محکمے کو بھیج دیا گیا ہے۔",
+            successDescription: "آپ کا مسئلہ رجسٹر ہو گیا ہے اور متعلقہ محکمے کو بھیج دیا گیا ہے۔",
             errorOccurred: "خرابی واقع ہوئی",
             pleaseSelectCategory: "براہ کرم ایک قسم منتخب کریں",
             pleaseSelectDepartment: "براہ کرم ایک محکمہ منتخب کریں",
@@ -107,7 +90,6 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
         },
     ];
 
-    // Fetch departments with their allowed categories on component mount
     useEffect(() => {
         const fetchDepartments = async () => {
             try {
@@ -125,7 +107,6 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
         fetchDepartments();
     }, []);
 
-    // Filter departments by category - only show departments that support this category
     const categoryDepartments = departments.filter((dept) => {
         if (!category) return false;
         return dept.categories.includes(category);
@@ -174,12 +155,21 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
             }
 
             // Create complaint
-            await createComplaint({
+            const complaint = await createComplaint({
                 title: title.trim(),
                 body: description.trim(),
                 category,
                 departmentId,
             });
+
+            // If files are uploaded, upload them to the Supabase storage
+            if (uploadedFiles.length > 0) {
+                const { uploadComplaintAttachments } = await import("../../lib/attachments");
+                await uploadComplaintAttachments({
+                    complaintId: complaint.id,
+                    files: uploadedFiles,
+                });
+            }
 
             setSuccess(true);
             setTitle("");
@@ -194,23 +184,7 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
             }, 2000);
         } catch (err) {
             console.error("Error submitting issue:", err);
-
-            // Handle category/department mismatch error more gracefully
-            const errorMsg = err.message?.toLowerCase() || "";
-            if (
-                errorMsg.includes("category") ||
-                errorMsg.includes("not allowed") ||
-                errorMsg.includes("operator does not exist")
-            ) {
-                const categoryLabel =
-                    categories.find((c) => c.value === category)?.label || category;
-                setError(
-                    `The "${categoryLabel}" category cannot be submitted to the "${department}" department. ` +
-                    `Please select a compatible department for this category.`
-                );
-            } else {
-                setError(err.message || text[language].errorOccurred);
-            }
+            setError(err.message || text[language].errorOccurred);
         } finally {
             setLoading(false);
         }
@@ -381,7 +355,9 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
                                     type="button"
                                     variant="outline"
                                     className="mt-4"
-                                    onClick={() => document.getElementById("file-input")?.click()}
+                                    onClick={() =>
+                                        document.getElementById("file-input")?.click()
+                                    }
                                 >
                                     {text[language].chooseFiles}
                                 </Button>
