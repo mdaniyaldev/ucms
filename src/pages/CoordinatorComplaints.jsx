@@ -40,6 +40,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { AttachmentsList } from "../components/ui/AttachmentsList";
 import {
   listDepartmentComplaints,
   setComplaintInProgress,
@@ -322,6 +323,7 @@ export default function CoordinatorComplaints() {
                             Priority: {complaint.priority}
                           </Badge>
                         </div>
+                        <AttachmentsList attachments={complaint.attachments} />
                       </div>
 
                       {/* Actions Section */}

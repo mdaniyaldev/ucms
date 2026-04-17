@@ -20,6 +20,7 @@ import {
 import { CSVLink } from "react-csv";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { getAllComplaints, updateComplaintStatus } from "../lib/admin";
+import { AttachmentsList } from "../components/ui/AttachmentsList";
 
 export default function AdminComplaints() {
   const [complaints, setComplaints] = useState([]);
@@ -316,6 +317,8 @@ export default function AdminComplaints() {
                             </div>
                           </div>
 
+                          <AttachmentsList attachments={complaint.attachments} />
+
                           {/* Actions - Admin can only resolve complaints */}
                           {complaint.status !== "resolved" && (
                             <div className="flex gap-2 pt-2">
@@ -414,6 +417,7 @@ export default function AdminComplaints() {
                   </div>
                 )}
               </div>
+              <AttachmentsList attachments={selectedComplaint.attachments} />
               <div className="pt-4 flex gap-2">
                 <Button onClick={() => setSelectedComplaint(null)} variant="outline" className="flex-1">
                   Close
