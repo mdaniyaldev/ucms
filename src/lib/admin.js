@@ -94,7 +94,8 @@ export async function getAllComplaints(filters = {}) {
       due_at,
       resolved_at,
       student:profiles!student_id(unique_id, id, role),
-      department:departments!department_id(name, id)
+      department:departments!department_id(name, id),
+      attachments:complaint_attachments(id, file_path, original_name, file_type, bucket_name, mime_type)
     `)
     .order("created_at", { ascending: false });
 

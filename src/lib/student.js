@@ -125,7 +125,8 @@ export async function listMyComplaints() {
       resolved_at,
       escalated_at,
       priority,
-      department:departments(name)
+      department:departments(name),
+      attachments:complaint_attachments(id, file_path, original_name, file_type, bucket_name, mime_type)
     `
     )
     .eq("student_id", user.id)

@@ -28,6 +28,7 @@ import {
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { listMyComplaints, subscribeToMyComplaints } from "../lib/faculty";
+import { AttachmentsList } from "../components/ui/AttachmentsList";
 
 export function FacultyComplaints() {
     const navigate = useNavigate();
@@ -357,6 +358,7 @@ export function FacultyComplaints() {
                                                 value={getProgressPercentage(complaint.status)}
                                             />
                                         </div>
+                                        <AttachmentsList attachments={complaint.attachments} />
                                     </div>
                                 </CardContent>
                             </Card>

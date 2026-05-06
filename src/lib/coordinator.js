@@ -72,7 +72,8 @@ export async function listDepartmentComplaints() {
       due_at,
       resolved_at,
       priority,
-      student:profiles!student_id(unique_id, role)
+      student:profiles!student_id(unique_id, role),
+      attachments:complaint_attachments(id, file_path, original_name, file_type, bucket_name, mime_type)
     `
         )
         .eq("department_id", user.department_id)

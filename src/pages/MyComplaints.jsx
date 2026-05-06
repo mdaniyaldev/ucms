@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -26,21 +25,19 @@ import {
   AlertTriangle,
   TrendingUp,
 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 import { listMyComplaints, subscribeToMyComplaints } from "../lib/student";
-import { useAuth } from "../context/AuthContext";
 import { getMyFeedback } from "../lib/feedback";
 import FeedbackModal from "../components/feedback/FeedbackModal";
 import RatingStars from "../components/ui/RatingStars";
+import { AttachmentsList } from "../components/ui/AttachmentsList";
 
 export function MyComplaints() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const [language, setLanguage] = useState("en");
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,7 +45,8 @@ export function MyComplaints() {
   // Feedback state
   const [feedbackMap, setFeedbackMap] = useState({});
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-  const [selectedComplaintForFeedback, setSelectedComplaintForFeedback] = useState(null);
+  const [selectedComplaintForFeedback, setSelectedComplaintForFeedback] =
+    useState(null);
 
   const text = {
     en: {
@@ -111,42 +109,55 @@ export function MyComplaints() {
     },
   };
 
-  const fetchFeedback = async () => {
+  const fetchFeedback = useCallback(async () => {
     try {
       const fbData = await getMyFeedback();
       const fMap = {};
-      fbData.forEach((f) => {
+
+      (fbData || []).forEach((f) => {
         fMap[f.complaint_id] = f;
       });
+
       setFeedbackMap(fMap);
     } catch (err) {
       console.error("Failed to load feedback", err);
     }
-  };
+  }, []);
 
-  // Fetch complaints on component mount
   useEffect(() => {
     let unsubscribe;
 
-  const fetchComplaints = async () => {
-    setLoading(true);
-    const data = await listMyComplaints();
-    setComplaints(data || []);
-    await fetchFeedback();
-    setLoading(false);
-  };
+    const fetchComplaints = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  fetchComplaints();
+        const data = await listMyComplaints();
+        setComplaints(data || []);
 
-  (async () => {
-    unsubscribe = await subscribeToMyComplaints(() => {
-      fetchComplaints(); // refresh when cron escalates
-    });
-  })();
+        await fetchFeedback();
+      } catch (err) {
+        console.error("Failed to load complaints", err);
+        setError(err?.message || "Failed to load complaints");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return () => unsubscribe?.();
-}, []);
+    fetchComplaints();
 
+    (async () => {
+      unsubscribe = await subscribeToMyComplaints(() => {
+        fetchComplaints();
+      });
+    })();
+
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
+  }, [fetchFeedback]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -172,6 +183,7 @@ export function MyComplaints() {
     };
 
     const config = statusConfig[status] || statusConfig.open;
+
     return (
       <Badge variant={config.variant} className="gap-1">
         {getStatusIcon(status)}
@@ -202,11 +214,13 @@ export function MyComplaints() {
       transport: text[language].transport,
       administrative: text[language].administrative,
     };
+
     return categoryMap[category] || category;
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
+
     const date = new Date(dateString);
     return date.toLocaleDateString("en-GB");
   };
@@ -226,22 +240,31 @@ export function MyComplaints() {
     }
   };
 
+  const canEditFeedback = (feedback) => {
+    if (!feedback?.created_at) return false;
+
+    return (
+      new Date().getTime() - new Date(feedback.created_at).getTime() <
+      24 * 60 * 60 * 1000
+    );
+  };
+
   const filteredComplaints = complaints.filter((complaint) => {
-    // Handle status filtering
-    let statusMatch = true;
-    if (filterStatus !== "all") {
-      statusMatch = complaint.status === filterStatus;
+    if (filterStatus !== "all" && complaint.status !== filterStatus) {
+      return false;
     }
 
-    if (!statusMatch) return false;
-    if (filterCategory !== "all" && complaint.category !== filterCategory)
+    if (filterCategory !== "all" && complaint.category !== filterCategory) {
       return false;
+    }
+
     if (
       searchQuery &&
-      !complaint.title.toLowerCase().includes(searchQuery.toLowerCase())
+      !complaint.title?.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       return false;
     }
+
     return true;
   });
 
@@ -256,6 +279,7 @@ export function MyComplaints() {
             {text[language].subtitle}
           </p>
         </div>
+
         <Button
           onClick={() => setLanguage(language === "en" ? "ur" : "en")}
           variant="outline"
@@ -270,6 +294,7 @@ export function MyComplaints() {
             {/* Search Input */}
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+
               <input
                 type="text"
                 placeholder={text[language].search}
@@ -284,6 +309,7 @@ export function MyComplaints() {
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder={text[language].filterStatus} />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="all">{text[language].all}</SelectItem>
                 <SelectItem value="open">{text[language].pending}</SelectItem>
@@ -304,6 +330,7 @@ export function MyComplaints() {
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder={text[language].filterCategory} />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="all">{text[language].all}</SelectItem>
                 <SelectItem value="academic">
@@ -342,26 +369,33 @@ export function MyComplaints() {
               >
                 <CardContent className="pt-6">
                   <div className="space-y-4">
-                    {/* Header with ID, Category, and Evidence */}
+                    {/* Header with ID, Category, and Status */}
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2 flex-wrap">
                           <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">
-                            {complaint.id.slice(0, 8)}
+                            {complaint.id?.slice(0, 8)}
                           </span>
+
                           <div className="flex items-center gap-1 text-gray-600 dark:text-slate-400 text-sm">
                             {getCategoryIcon(complaint.category)}
                             <span>{complaint.department?.name || "N/A"}</span>
                           </div>
+
+                          <Badge variant="outline" className="gap-1">
+                            {getCategoryLabel(complaint.category)}
+                          </Badge>
                         </div>
 
                         {/* Title and Description */}
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1">
                           {complaint.title}
                         </h3>
+
                         <p className="text-gray-600 dark:text-slate-400 text-sm mb-2">
                           {complaint.body || "No description provided"}
                         </p>
+
                         <p className="text-gray-500 dark:text-slate-500 text-xs">
                           {text[language].date}:{" "}
                           {formatDate(complaint.created_at)}
@@ -378,15 +412,23 @@ export function MyComplaints() {
                     {complaint.status === "resolved" && (
                       <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-800">
                         {feedbackMap[complaint.id] ? (
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400">
+                          <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge
+                                variant="outline"
+                                className="text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400"
+                              >
                                 Feedback Submitted
                               </Badge>
-                              <RatingStars value={feedbackMap[complaint.id].rating} readOnly size="sm" />
+
+                              <RatingStars
+                                value={feedbackMap[complaint.id].rating}
+                                readOnly
+                                size="sm"
+                              />
                             </div>
-                            {/* Check if created within 24h */}
-                            {(new Date() - new Date(feedbackMap[complaint.id].created_at)) < 24 * 60 * 60 * 1000 && (
+
+                            {canEditFeedback(feedbackMap[complaint.id]) && (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -421,14 +463,17 @@ export function MyComplaints() {
                         <span className="text-gray-600 dark:text-slate-400">
                           {text[language].progress}
                         </span>
+
                         <span className="text-gray-900 dark:text-slate-100 font-medium">
                           {getProgressPercentage(complaint.status)}%
                         </span>
                       </div>
-                      <Progress
-                        value={getProgressPercentage(complaint.status)}
-                      />
+
+                      <Progress value={getProgressPercentage(complaint.status)} />
                     </div>
+
+                    {/* Attachments Section */}
+                    <AttachmentsList attachments={complaint.attachments} />
                   </div>
                 </CardContent>
               </Card>
@@ -442,7 +487,11 @@ export function MyComplaints() {
         onOpenChange={setIsFeedbackModalOpen}
         complaintId={selectedComplaintForFeedback?.id}
         complaintTitle={selectedComplaintForFeedback?.title}
-        existingFeedback={selectedComplaintForFeedback ? feedbackMap[selectedComplaintForFeedback.id] : null}
+        existingFeedback={
+          selectedComplaintForFeedback
+            ? feedbackMap[selectedComplaintForFeedback.id]
+            : null
+        }
         onSuccess={fetchFeedback}
       />
     </div>
