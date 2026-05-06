@@ -43,7 +43,6 @@ import {
 } from "../lib/coordinator";
 import { getDeptFeedbackStats } from "../lib/feedback";
 import { useAuth } from "../context/AuthContext";
-import FeedbackStatsCards from "../components/feedback/FeedbackStatsCards";
 
 export default function CoordinatorDashboard() {
   const navigate = useNavigate();
@@ -58,7 +57,6 @@ export default function CoordinatorDashboard() {
   });
   // We use this state to hold ALL complaints for charting
   const [allComplaints, setAllComplaints] = useState([]);
-  const [feedbackStats, setFeedbackStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -66,14 +64,12 @@ export default function CoordinatorDashboard() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [statsData, complaintsData, fbStatsData] = await Promise.all([
+        const [statsData, complaintsData] = await Promise.all([
           getDeptStats(),
           listDepartmentComplaints(),
-          user?.department_id ? getDeptFeedbackStats(user.department_id) : Promise.resolve({}),
         ]);
         setStats(statsData);
         setAllComplaints(complaintsData || []);
-        setFeedbackStats(fbStatsData);
       } catch (err) {
         console.error("Error fetching coordinator data:", err);
         setError("Failed to load dashboard data. " + err.message);
@@ -359,19 +355,6 @@ export default function CoordinatorDashboard() {
           )}
         </CardContent>
       </Card>
-
-      {/* Feedback Summary */}
-      <div>
-        <div className="flex items-center justify-between mb-4 mt-8">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
-            Feedback Overview
-          </h2>
-          <Button variant="outline" onClick={() => navigate("/coordinator/feedback")}>
-            View Feedback Details
-          </Button>
-        </div>
-        <FeedbackStatsCards stats={feedbackStats} showDistribution={false} />
-      </div>
     </div>
   );
 }

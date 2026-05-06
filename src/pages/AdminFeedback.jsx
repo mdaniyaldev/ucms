@@ -9,18 +9,10 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Search, Loader2, AlertTriangle, MessageSquareText } from "lucide-react";
-import {
-  getAdminFeedbackStats,
-  getDeptFeedbackLeaderboard,
-  getFeedbackList,
-} from "../lib/feedback";
-import FeedbackStatsCards from "../components/feedback/FeedbackStatsCards";
-import FeedbackLeaderboard from "../components/feedback/FeedbackLeaderboard";
+import { getFeedbackList } from "../lib/feedback";
 import FeedbackCard from "../components/feedback/FeedbackCard";
 
 export default function AdminFeedback() {
-  const [stats, setStats] = useState({});
-  const [leaderboard, setLeaderboard] = useState([]);
   const [feedbackList, setFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,14 +31,8 @@ export default function AdminFeedback() {
       setLoading(true);
       setError(null);
 
-      const [statsData, leaderboardData, feedbackData] = await Promise.all([
-        getAdminFeedbackStats(),
-        getDeptFeedbackLeaderboard(),
-        getFeedbackList({ limit: 50 }),
-      ]);
+      const feedbackData = await getFeedbackList({ limit: 50 });
 
-      setStats(statsData);
-      setLeaderboard(leaderboardData);
       setFeedbackList(feedbackData);
     } catch (err) {
       console.error("[AdminFeedback] fetch error:", err);
@@ -118,12 +104,6 @@ export default function AdminFeedback() {
       </div>
 
       <div className="space-y-6">
-        {/* Stats */}
-        <FeedbackStatsCards stats={stats} showDistribution={true} />
-
-        {/* Leaderboard */}
-        <FeedbackLeaderboard data={leaderboard} />
-
         {/* Recent Feedback */}
         <Card>
           <CardHeader>

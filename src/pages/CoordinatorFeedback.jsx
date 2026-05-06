@@ -10,13 +10,11 @@ import {
 } from "../components/ui/select";
 import { Search, Loader2, AlertTriangle, MessageSquareText } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { getDeptFeedbackStats, getFeedbackList } from "../lib/feedback";
-import FeedbackStatsCards from "../components/feedback/FeedbackStatsCards";
+import { getFeedbackList } from "../lib/feedback";
 import FeedbackCard from "../components/feedback/FeedbackCard";
 
 export default function CoordinatorFeedback() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({});
   const [feedbackList, setFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,14 +33,8 @@ export default function CoordinatorFeedback() {
       setLoading(true);
       setError(null);
 
-      const [statsData, feedbackData] = await Promise.all([
-        user?.department_id
-          ? getDeptFeedbackStats(user.department_id)
-          : Promise.resolve({}),
-        getFeedbackList({ limit: 100 }),
-      ]);
+      const feedbackData = await getFeedbackList({ limit: 100 });
 
-      setStats(statsData);
       setFeedbackList(feedbackData);
     } catch (err) {
       console.error("[CoordinatorFeedback] fetch error:", err);
@@ -108,9 +100,6 @@ export default function CoordinatorFeedback() {
           Student feedback for your department's complaint resolutions
         </p>
       </div>
-
-      {/* Stats */}
-      <FeedbackStatsCards stats={stats} showDistribution={true} />
 
       {/* Feedback List */}
       <Card>

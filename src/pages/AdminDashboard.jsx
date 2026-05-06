@@ -39,8 +39,6 @@ import {
   getCategoryDistribution,
   getTrendData,
 } from "../lib/admin";
-import { getAdminFeedbackStats } from "../lib/feedback";
-import FeedbackStatsCards from "../components/feedback/FeedbackStatsCards";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
@@ -61,7 +59,6 @@ export default function AdminDashboard() {
   const [categoryData, setCategoryData] = useState([]);
   const [trendData, setTrendData] = useState([]);
   const [performanceData, setPerformanceData] = useState([]);
-  const [feedbackStats, setFeedbackStats] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,17 +74,15 @@ export default function AdminDashboard() {
       const days = period === "week" ? 7 : period === "month" ? 30 : 365;
 
       // Fetch all data in parallel
-      const [statsData, deptAnalytics, categoryDist, trends, fbStats] = await Promise.all([
+      const [statsData, deptAnalytics, categoryDist, trends] = await Promise.all([
         getAdminStats(),
         getDepartmentAnalytics(),
         getCategoryDistribution(),
         getTrendData(days),
-        getAdminFeedbackStats(),
       ]);
 
       setStats(statsData);
       setPerformanceData(deptAnalytics);
-      setFeedbackStats(fbStats);
       
       // Department data for bar chart (complaints count)
       setDepartmentData(
@@ -422,22 +417,6 @@ export default function AdminDashboard() {
             )}
           </CardContent>
         </Card>
-      </div>
-
-      {/* Feedback Overview */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold tracking-tight text-slate-800 dark:text-slate-100">
-            Feedback Overview
-          </h2>
-          <button
-            onClick={() => navigate("/admin/feedback")}
-            className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            View Full Analytics &rarr;
-          </button>
-        </div>
-        <FeedbackStatsCards stats={feedbackStats} showDistribution={false} />
       </div>
     </AdminLayout>
   );
