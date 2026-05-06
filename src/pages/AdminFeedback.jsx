@@ -1,0 +1,193 @@
+import { useState, useEffect } from "react";
+import AdminLayout from "../components/admin/AdminLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Search, Loader2, AlertTriangle, MessageSquareText } from "lucide-react";
+import {
+  getAdminFeedbackStats,
+  getDeptFeedbackLeaderboard,
+  getFeedbackList,
+} from "../lib/feedback";
+import FeedbackStatsCards from "../components/feedback/FeedbackStatsCards";
+import FeedbackLeaderboard from "../components/feedback/FeedbackLeaderboard";
+import FeedbackCard from "../components/feedback/FeedbackCard";
+
+export default function AdminFeedback() {
+  const [stats, setStats] = useState({});
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [feedbackList, setFeedbackList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Filters for feedback list
+  const [ratingFilter, setRatingFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  async function fetchData() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [statsData, leaderboardData, feedbackData] = await Promise.all([
+        getAdminFeedbackStats(),
+        getDeptFeedbackLeaderboard(),
+        getFeedbackList({ limit: 50 }),
+      ]);
+
+      setStats(statsData);
+      setLeaderboard(leaderboardData);
+      setFeedbackList(feedbackData);
+    } catch (err) {
+      console.error("[AdminFeedback] fetch error:", err);
+      setError(err.message || "Failed to load feedback analytics");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Client-side filtering
+  const filteredFeedback = feedbackList
+    .filter((f) => {
+      if (ratingFilter !== "all" && f.rating !== parseInt(ratingFilter))
+        return false;
+      if (
+        searchQuery &&
+        !f.complaint_title?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+        return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortOrder === "oldest") {
+        return new Date(a.created_at) - new Date(b.created_at);
+      }
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-96 gap-2 text-slate-500">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span>Loading feedback analytics...</span>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+            <p className="text-rose-600 font-medium">{error}</p>
+            <button
+              onClick={fetchData}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight">
+          Feedback Analytics
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          System-wide feedback overview and department performance
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        {/* Stats */}
+        <FeedbackStatsCards stats={stats} showDistribution={true} />
+
+        {/* Leaderboard */}
+        <FeedbackLeaderboard data={leaderboard} />
+
+        {/* Recent Feedback */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col gap-4">
+              <CardTitle className="text-sm font-semibold">
+                Recent Feedback
+              </CardTitle>
+              <div className="flex flex-col md:flex-row gap-3">
+                {/* Search */}
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Search by complaint title..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 pl-10 text-sm text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Rating Filter */}
+                <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                  <SelectTrigger className="w-full md:w-36">
+                    <SelectValue placeholder="Rating" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Ratings</SelectItem>
+                    <SelectItem value="5">5 Stars</SelectItem>
+                    <SelectItem value="4">4 Stars</SelectItem>
+                    <SelectItem value="3">3 Stars</SelectItem>
+                    <SelectItem value="2">2 Stars</SelectItem>
+                    <SelectItem value="1">1 Star</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Sort */}
+                <Select value={sortOrder} onValueChange={setSortOrder}>
+                  <SelectTrigger className="w-full md:w-36">
+                    <SelectValue placeholder="Sort" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="oldest">Oldest</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {filteredFeedback.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageSquareText className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-500 dark:text-slate-400">
+                  No feedback found
+                </p>
+              </div>
+            ) : (
+              filteredFeedback.map((fb, i) => (
+                <FeedbackCard key={fb.id || i} feedback={fb} />
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </AdminLayout>
+  );
+}

@@ -30,6 +30,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { listMyComplaints, subscribeToMyComplaints } from "../lib/student";
 import { useAuth } from "../context/AuthContext";
+import { getMyFeedback } from "../lib/feedback";
+import FeedbackModal from "../components/feedback/FeedbackModal";
+import RatingStars from "../components/ui/RatingStars";
 
 export function MyComplaints() {
   const navigate = useNavigate();
@@ -41,6 +44,11 @@ export function MyComplaints() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Feedback state
+  const [feedbackMap, setFeedbackMap] = useState({});
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [selectedComplaintForFeedback, setSelectedComplaintForFeedback] = useState(null);
 
   const text = {
     en: {
@@ -103,14 +111,28 @@ export function MyComplaints() {
     },
   };
 
+  const fetchFeedback = async () => {
+    try {
+      const fbData = await getMyFeedback();
+      const fMap = {};
+      fbData.forEach((f) => {
+        fMap[f.complaint_id] = f;
+      });
+      setFeedbackMap(fMap);
+    } catch (err) {
+      console.error("Failed to load feedback", err);
+    }
+  };
+
   // Fetch complaints on component mount
   useEffect(() => {
-  let unsubscribe;
+    let unsubscribe;
 
   const fetchComplaints = async () => {
     setLoading(true);
     const data = await listMyComplaints();
     setComplaints(data || []);
+    await fetchFeedback();
     setLoading(false);
   };
 
@@ -352,6 +374,47 @@ export function MyComplaints() {
                       </div>
                     </div>
 
+                    {/* Feedback Section */}
+                    {complaint.status === "resolved" && (
+                      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-800">
+                        {feedbackMap[complaint.id] ? (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400">
+                                Feedback Submitted
+                              </Badge>
+                              <RatingStars value={feedbackMap[complaint.id].rating} readOnly size="sm" />
+                            </div>
+                            {/* Check if created within 24h */}
+                            {(new Date() - new Date(feedbackMap[complaint.id].created_at)) < 24 * 60 * 60 * 1000 && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedComplaintForFeedback(complaint);
+                                  setIsFeedbackModalOpen(true);
+                                }}
+                              >
+                                Edit Feedback
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950/50"
+                            onClick={() => {
+                              setSelectedComplaintForFeedback(complaint);
+                              setIsFeedbackModalOpen(true);
+                            }}
+                          >
+                            Give Feedback
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
                     {/* Progress Bar */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
@@ -373,6 +436,15 @@ export function MyComplaints() {
           )}
         </CardContent>
       </Card>
+
+      <FeedbackModal
+        open={isFeedbackModalOpen}
+        onOpenChange={setIsFeedbackModalOpen}
+        complaintId={selectedComplaintForFeedback?.id}
+        complaintTitle={selectedComplaintForFeedback?.title}
+        existingFeedback={selectedComplaintForFeedback ? feedbackMap[selectedComplaintForFeedback.id] : null}
+        onSuccess={fetchFeedback}
+      />
     </div>
   );
 }

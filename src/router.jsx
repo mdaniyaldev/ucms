@@ -16,6 +16,8 @@ import { MyComplaints } from "./pages/MyComplaints";
 import CoordinatorLayout from "./components/coordinator/CoordinatorLayout";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorComplaints from "./pages/CoordinatorComplaints";
+import CoordinatorFeedback from "./pages/CoordinatorFeedback";
+import AdminFeedback from "./pages/AdminFeedback";
 import { Navigate } from "react-router-dom";
 // Faculty imports
 import FacultyLayout from "./components/faculty/FacultyLayout";
@@ -80,6 +82,10 @@ export default createBrowserRouter([
         path: "/coordinator/complaints",
         element: <CoordinatorLayout><CoordinatorComplaints /></CoordinatorLayout>
       },
+      {
+        path: "/coordinator/feedback",
+        element: <CoordinatorLayout><CoordinatorFeedback /></CoordinatorLayout>
+      },
       // Redirect /coordinator to dashboard
       { path: "/coordinator", element: <Navigate to="/coordinator/dashboard" replace /> },
     ],
@@ -115,6 +121,7 @@ export default createBrowserRouter([
       { path: "/admin/complaints", element: <AdminComplaints /> },
       { path: "/admin/departments", element: <AdminDepartments /> },
       { path: "/admin/analytics", element: <AdminAnalytics /> },
+      { path: "/admin/feedback", element: <AdminFeedback /> },
     ],
   },
 

@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, LogOut, User } from "lucide-react";
+import { LayoutDashboard, FileText, LogOut, User, MessageSquareText } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const menu = [
   { name: "Dashboard", icon: LayoutDashboard, to: "/coordinator/dashboard" },
   { name: "Department Complaints", icon: FileText, to: "/coordinator/complaints" },
+  { name: "Feedback", icon: MessageSquareText, to: "/coordinator/feedback" },
 ];
 
 export default function CoordinatorSidebar() {
