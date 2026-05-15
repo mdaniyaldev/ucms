@@ -18,7 +18,12 @@ import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorComplaints from "./pages/CoordinatorComplaints";
 import CoordinatorFeedback from "./pages/CoordinatorFeedback";
 import AdminFeedback from "./pages/AdminFeedback";
+import AdminSuggestions from "./pages/AdminSuggestions";
+import AdminPolls from "./pages/AdminPolls";
 import { Navigate } from "react-router-dom";
+import { StudentSuggestions } from "./pages/StudentSuggestions";
+import { MySuggestions } from "./pages/MySuggestions";
+import { StudentPolls } from "./pages/StudentPolls";
 // Faculty imports
 import FacultyLayout from "./components/faculty/FacultyLayout";
 import { FacultyDashboard } from "./pages/FacultyDashboard";
@@ -66,6 +71,18 @@ export default createBrowserRouter([
       {
         path: "/student/complaints",
         element: <StudentLayout><MyComplaints /></StudentLayout>
+      },
+      {
+        path: "/student/suggestions",
+        element: <StudentLayout><StudentSuggestions /></StudentLayout>
+      },
+      {
+        path: "/student/my-suggestions",
+        element: <StudentLayout><MySuggestions /></StudentLayout>
+      },
+      {
+        path: "/student/polls",
+        element: <StudentLayout><StudentPolls /></StudentLayout>
       },
     ],
   },
@@ -122,6 +139,8 @@ export default createBrowserRouter([
       { path: "/admin/departments", element: <AdminDepartments /> },
       { path: "/admin/analytics", element: <AdminAnalytics /> },
       { path: "/admin/feedback", element: <AdminFeedback /> },
+      { path: "/admin/suggestions", element: <AdminSuggestions /> },
+      { path: "/admin/polls", element: <AdminPolls /> },
     ],
   },
 

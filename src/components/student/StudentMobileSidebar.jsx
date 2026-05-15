@@ -1,4 +1,4 @@
-import { X, LayoutDashboard, FileText, LogOut } from "lucide-react";
+import { X, LayoutDashboard, FileText, LogOut, Lightbulb, List, BarChart3 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -9,6 +9,9 @@ export default function StudentMobileSidebar({ open, setOpen }) {
   const menu = [
     { name: "Dashboard", icon: LayoutDashboard, to: "/student-dashboard" },
     { name: "My Complaints", icon: FileText, to: "/student/complaints" },
+    { name: "Suggestion Box", icon: Lightbulb, to: "/student/suggestions" },
+    { name: "My Suggestions", icon: List, to: "/student/my-suggestions" },
+    { name: "Polls", icon: BarChart3, to: "/student/polls" },
   ];
 
   return (

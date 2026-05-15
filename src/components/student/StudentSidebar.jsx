@@ -1,11 +1,14 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, LogOut, User, Send } from "lucide-react";
+import { LayoutDashboard, FileText, LogOut, User, Send, Lightbulb, List, BarChart3 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const menu = [
   { name: "Dashboard", icon: LayoutDashboard, to: "/student-dashboard" },
   { name: "My Complaints", icon: FileText, to: "/student/complaints" },
   { name: "Submit Complaint", icon: Send, to: "/student/submit-complaint" },
+  { name: "Suggestion Box", icon: Lightbulb, to: "/student/suggestions" },
+  { name: "My Suggestions", icon: List, to: "/student/my-suggestions" },
+  { name: "Polls", icon: BarChart3, to: "/student/polls" },
 ];
 
 export default function StudentSidebar() {

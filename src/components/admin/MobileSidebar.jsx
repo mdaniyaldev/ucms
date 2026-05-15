@@ -1,4 +1,4 @@
-import { X, LayoutDashboard, Users, FileText, Building, Settings, LogOut, MessageSquareText } from "lucide-react";
+import { X, LayoutDashboard, Users, FileText, Building, Settings, LogOut, MessageSquareText, Lightbulb, BarChart3 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -13,6 +13,8 @@ export default function MobileSidebar({ open, setOpen }) {
     { name: "Complaints", icon: FileText, to: "/admin/complaints" },
     { name: "Settings", icon: Settings, to: "/admin/settings" },
     { name: "Feedback", icon: MessageSquareText, to: "/admin/feedback" },
+    { name: "Suggestions", icon: Lightbulb, to: "/admin/suggestions" },
+    { name: "Polls", icon: BarChart3, to: "/admin/polls" },
   ];
 
   return (

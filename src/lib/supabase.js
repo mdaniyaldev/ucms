@@ -11,8 +11,8 @@ if (!url || !anon) {
 
 export const supabase = createClient(url, anon, {
   auth: {
-    persistSession: false,
-    autoRefreshToken: false,
+    persistSession: true,
+    autoRefreshToken: true,
   },
 });
 

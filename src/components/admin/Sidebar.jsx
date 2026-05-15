@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, Building, Settings, LogOut, LucideBanknoteArrowUp, MessageSquareText } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Building, Settings, LogOut, LucideBanknoteArrowUp, MessageSquareText, Lightbulb, BarChart3 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const menu = [
@@ -10,6 +10,8 @@ const menu = [
   // { name: "Settings", icon: Settings, to: "/admin/settings" },
   { name: "Analytics", icon: LucideBanknoteArrowUp, to: "/admin/analytics" },
   { name: "Feedback", icon: MessageSquareText, to: "/admin/feedback" },
+  { name: "Suggestions", icon: Lightbulb, to: "/admin/suggestions" },
+  { name: "Polls", icon: BarChart3, to: "/admin/polls" },
 ];
 
 export default function Sidebar() {
