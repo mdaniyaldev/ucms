@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import {
   BarChart,
   Bar,
@@ -355,7 +360,9 @@ export default function AdminAnalytics({ language = "en" }) {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{text[language].topIssues}</CardTitle>
+              <CardTitle className="text-lg">
+                {text[language].topIssues}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {recurringIssues.length === 0 ? (
