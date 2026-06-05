@@ -301,14 +301,14 @@ export default function Login() {
                 : text[language].loginButton}
             </button>
 
-            <div className="text-center mt-3">
+            {/* <div className="text-center mt-3">
               <button
                 type="button"
                 className="text-blue-600 text-sm hover:underline"
               >
                 {text[language].forgotPassword}
               </button>
-            </div>
+            </div> */}
           </form>
         ) : (
           <div className="text-center text-gray-500 text-sm">
