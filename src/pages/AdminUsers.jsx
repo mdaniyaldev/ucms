@@ -1,9 +1,21 @@
+// AdminUsers.jsx
+
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Loader2, Plus, Trash2, Users, UserCheck, AlertCircle, Building2, Mail } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import { createUserAsAdmin } from "../lib/admin";
+
+// Converts  03001234567  →  +923001234567
+// Converts  923001234567 →  +923001234567
+// Leaves    +923001234567 unchanged
+function normalizePhone(raw) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("92")) return `+${digits}`;
+  if (digits.startsWith("0")) return `+92${digits.slice(1)}`;
+  return `+${digits}`;
+}
 
 export default function AdminUsers() {
   // TAB STATE
@@ -18,7 +30,8 @@ export default function AdminUsers() {
   const [form, setForm] = useState({
     uniqueId: "",
     password: "",
-    email: "", // NEW: Email field
+    email: "",
+    phone: "", // NEW: Phone field
     role: "student",
   });
 
@@ -42,7 +55,8 @@ export default function AdminUsers() {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, unique_id, role, email, email_verified, department_id, created_at")
+        // Added 'phone' to the select query to ensure it renders in the table
+        .select("id, unique_id, role, email, email_verified, phone, department_id, created_at")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -119,12 +133,13 @@ export default function AdminUsers() {
         !q ||
         u.unique_id?.toLowerCase().includes(q) ||
         u.role?.toLowerCase().includes(q) ||
-        u.email?.toLowerCase().includes(q);
+        u.email?.toLowerCase().includes(q) ||
+        u.phone?.includes(q); // Added phone to search scope
       return matchesRole && matchesSearch;
     });
   }, [users, search, roleFilter]);
 
-  // CREATE USER HANDLER (UPDATED WITH EMAIL)
+  // CREATE USER HANDLER 
   async function handleCreateUser(e) {
     e.preventDefault();
     setMsg(null);
@@ -178,16 +193,34 @@ export default function AdminUsers() {
         }
       }
 
+      // Update profile with phone if provided
+      if (form.phone) {
+        const normalized = normalizePhone(form.phone.trim());
+        const { error: phoneError } = await supabase
+          .from("profiles")
+          .update({
+            phone: normalized,
+            phone_verified: true, // admin-created → auto-verify
+            notify_sms: true,
+          })
+          .eq("id", result.user_id);
+
+        if (phoneError) {
+          console.warn("[AdminUsers] Failed to set phone:", phoneError);
+        }
+      }
+
       setMsg({
         type: "success",
-        text: `User created successfully! ${form.email ? 'Email notifications enabled.' : ''}`,
+        text: `User created successfully! ${form.email || form.phone ? 'Notifications enabled.' : ''}`,
       });
 
-      setForm({
-        uniqueId: "",
-        password: "",
-        email: "",
-        role: "student",
+      setForm({ 
+        uniqueId: "", 
+        password: "", 
+        email: "", 
+        phone: "", 
+        role: "student" 
       });
 
       // Reload users
@@ -372,7 +405,7 @@ export default function AdminUsers() {
                     <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
                     <input
                       type="text"
-                      placeholder="Search by ID, email..."
+                      placeholder="Search by ID, email, phone..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       className="pl-7 pr-3 py-1.5 text-sm rounded-lg border border-border bg-background text-base-light focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -402,6 +435,9 @@ export default function AdminUsers() {
                         </th>
                         <th className="text-left px-3 py-2 font-medium text-subtle text-xs">
                           Email
+                        </th>
+                        <th className="text-left px-3 py-2 font-medium text-subtle text-xs">
+                          Phone
                         </th>
                         <th className="text-left px-3 py-2 font-medium text-subtle text-xs">
                           Role
@@ -434,6 +470,13 @@ export default function AdminUsers() {
                               </div>
                             ) : (
                               <span className="text-rose-400 text-xs">No email</span>
+                            )}
+                          </td>
+                          <td className="px-3 py-2 text-sm">
+                            {u.phone ? (
+                              <span className="text-base-light font-mono text-xs">{u.phone}</span>
+                            ) : (
+                              <span className="text-subtle text-xs">—</span>
                             )}
                           </td>
                           <td className="px-3 py-2 capitalize text-base-light">
@@ -517,7 +560,7 @@ export default function AdminUsers() {
                   />
                 </div>
 
-                {/* Email - NEW FIELD */}
+                {/* Email */}
                 <div>
                   <label className="block text-xs font-medium text-subtle mb-1">
                     Email Address (Optional)
@@ -537,6 +580,29 @@ export default function AdminUsers() {
                   <p className="text-xs text-subtle mt-1 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
                     User will receive email notifications if provided
+                  </p>
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label className="block text-xs font-medium text-subtle mb-1">
+                    WhatsApp Number (Optional)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-subtle font-mono">
+                      +92
+                    </span>
+                    <input
+                      type="tel"
+                      className="w-full rounded-lg border border-border bg-background pl-10 pr-3 py-2 text-sm text-base-light focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      placeholder="3001234567"
+                      value={form.phone}
+                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                    />
+                  </div>
+                  <p className="text-xs text-subtle mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    User must join Twilio sandbox to receive WhatsApp messages
                   </p>
                 </div>
 
