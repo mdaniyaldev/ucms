@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Users, FileText, Building, Settings, LogOut, LucideBanknoteArrowUp, MessageSquareText, Lightbulb, BarChart3 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import logoIcon from "../../assets/logo1_icon_transparent.png";
 
 const menu = [
   { name: "Overview", icon: LayoutDashboard, to: "/admin" },
@@ -20,7 +21,16 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:block w-64 bg-white dark:bg-slate-950 border-r border-slate-300 dark:border-slate-800 p-4">
-      <h1 className="text-xl font-semibold mb-6 text-slate-800 dark:text-slate-100">UCMS Admin</h1>
+      <div className="flex flex-col items-center justify-center px-3 pt-5 pb-3 bg-transparent">
+        <img
+          src={logoIcon}
+          alt="University Complaint Management System Logo"
+          className="w-14 h-14 object-contain bg-transparent"
+        />
+        <div className="mt-2 text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-300">
+          ADMIN
+        </div>
+      </div>
 
       <nav className="space-y-1">
         {menu.map((item) => {

@@ -1,6 +1,7 @@
 import { X, LayoutDashboard, FileText, LogOut, Lightbulb, List, BarChart3 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import logoIcon from "../../assets/logo1_icon_transparent.png";
 
 export default function StudentMobileSidebar({ open, setOpen }) {
   const { logout } = useAuth();
@@ -28,7 +29,16 @@ export default function StudentMobileSidebar({ open, setOpen }) {
           ${open ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-semibold">UCMS Student</h1>
+          <div className="flex flex-col items-center justify-center px-3 pt-3 pb-2 bg-transparent">
+            <img
+              src={logoIcon}
+              alt="University Complaint Management System Logo"
+              className="w-12 h-12 object-contain bg-transparent"
+            />
+            <div className="mt-1.5 text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-300">
+              STUDENT
+            </div>
+          </div>
           <button onClick={() => setOpen(false)}>
             <X className="w-6 h-6" />
           </button>

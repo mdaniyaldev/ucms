@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { User, Lock, Globe, Eye, EyeOff } from "lucide-react";
+import logo from "../assets/logo1_transparent_clean.png";
 
 const schema = z.object({
   uniqueId: z.string().min(3, "Enter your University ID"),
@@ -159,6 +160,13 @@ export default function Login() {
       {/* Card */}
       <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl p-6 sm:p-8">
         <div className="text-center mb-4">
+          <div className="flex justify-center mb-3">
+            <img
+              src={logo}
+              alt="University Complaint Management System Logo"
+              className="max-w-[180px] w-full h-auto object-contain bg-transparent"
+            />
+          </div>
           <h1 className="text-xl font-bold text-gray-900 mb-1">
             {text[language].title}
           </h1>

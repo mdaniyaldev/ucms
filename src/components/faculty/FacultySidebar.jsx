@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, FileText, LogOut, User, Send } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import logoIcon from "../../assets/logo1_icon_transparent.png";
 
 const menu = [
     { name: "Dashboard", icon: LayoutDashboard, to: "/faculty/dashboard" },
@@ -15,9 +16,16 @@ export default function FacultySidebar() {
     return (
         <aside className="hidden md:flex w-64 bg-white dark:bg-slate-950 border-r border-indigo-200 dark:border-slate-800 p-4 flex-col">
             <div>
-                <h1 className="text-xl font-semibold mb-2 text-indigo-800 dark:text-indigo-300">
-                    UCMS Faculty
-                </h1>
+                <div className="flex flex-col items-center justify-center px-3 pt-5 pb-3 bg-transparent">
+                    <img
+                        src={logoIcon}
+                        alt="University Complaint Management System Logo"
+                        className="w-14 h-14 object-contain bg-transparent"
+                    />
+                    <div className="mt-2 text-xs font-bold tracking-widest uppercase text-indigo-400 dark:text-indigo-300">
+                        FACULTY
+                    </div>
+                </div>
 
                 {/* Logged in as section */}
                 <div className="flex items-center gap-2 mb-6 p-3 bg-indigo-100 dark:bg-slate-800 rounded-lg">
