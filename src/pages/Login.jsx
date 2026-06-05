@@ -34,7 +34,7 @@ export default function Login() {
 
   const text = {
     en: {
-      title: "University Complaint Management System",
+      // title: "University Complaint Management System",
       subtitle: "Login to submit and track your complaints",
       login: "Login",
       signup: "Sign Up",
