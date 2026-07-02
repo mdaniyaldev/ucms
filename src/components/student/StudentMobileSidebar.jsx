@@ -17,7 +17,7 @@ export default function StudentMobileSidebar({ open, setOpen }) {
 
   return (
     <div
-      className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-50 transition 
+      className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden transition 
         ${
           open
             ? "opacity-100 pointer-events-auto"

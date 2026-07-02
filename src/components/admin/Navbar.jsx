@@ -20,14 +20,14 @@ export default function Navbar({ setMobileOpen }) {
       "
     >
       {/* Left: mobile menu + title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           className="lg:hidden p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
           onClick={() => setMobileOpen(true)}
         >
           <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />
         </button>
-        <h1 className="font-semibold text-lg text-slate-800 dark:text-slate-100">
+        <h1 className="font-semibold text-base sm:text-lg text-slate-800 dark:text-slate-100 truncate">
           Admin Dashboard
         </h1>
       </div>

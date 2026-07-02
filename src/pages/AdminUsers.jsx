@@ -350,7 +350,7 @@ export default function AdminUsers() {
 
       {/* TAB NAVIGATION */}
       <div className="border-b border-border mb-6">
-        <div className="flex gap-4">
+        <div className="flex gap-2 flex-wrap pb-1">
           <button
             onClick={() => setActiveTab("users")}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-colors ${
@@ -383,10 +383,10 @@ export default function AdminUsers() {
           {/* LEFT: Users table */}
           <Card className="xl:col-span-2">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between gap-4 text-base-light">
+              <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-base-light">
                 <span>All Users</span>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {/* Role Filter */}
                   <select
                     value={roleFilter}
@@ -426,7 +426,7 @@ export default function AdminUsers() {
                   No users found for this filter.
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="w-full overflow-x-auto">
                   <table className="w-full text-sm border-collapse">
                     <thead>
                       <tr className="border-b bg-muted/60">
@@ -463,7 +463,7 @@ export default function AdminUsers() {
                             {u.email ? (
                               <div className="flex items-center gap-1.5">
                                 <Mail className="w-3 h-3 text-emerald-400" />
-                                <span className="text-base-light">{u.email}</span>
+                                <span className="text-base-light max-w-[150px] truncate">{u.email}</span>
                                 {u.email_verified && (
                                   <span className="text-emerald-400 text-xs">✓</span>
                                 )}
@@ -474,7 +474,7 @@ export default function AdminUsers() {
                           </td>
                           <td className="px-3 py-2 text-sm">
                             {u.phone ? (
-                              <span className="text-base-light font-mono text-xs">{u.phone}</span>
+                              <span className="text-base-light font-mono text-xs max-w-[120px] truncate">{u.phone}</span>
                             ) : (
                               <span className="text-subtle text-xs">—</span>
                             )}
@@ -527,7 +527,7 @@ export default function AdminUsers() {
                 </div>
               )}
 
-              <form onSubmit={handleCreateUser} className="space-y-4">
+              <form onSubmit={handleCreateUser} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
                 {/* Unique ID */}
                 <div>
                   <label className="block text-xs font-medium text-subtle mb-1">

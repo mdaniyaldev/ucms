@@ -40,20 +40,20 @@ export default function FacultyNavbar({ setMobileOpen }) {
     };
 
     return (
-        <header className="h-16 bg-white dark:bg-slate-950 border-b border-indigo-200 dark:border-slate-800 flex items-center justify-between px-4">
+        <header className="h-16 bg-white dark:bg-slate-950 border-b border-indigo-200 dark:border-slate-800 flex items-center justify-between px-4 gap-2">
             {/* Mobile menu button */}
             <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="lg:hidden"
                 onClick={() => setMobileOpen(true)}
             >
                 <Menu className="w-5 h-5" />
             </Button>
 
-            {/* Page title - hidden on mobile */}
-            <div className="hidden md:block">
-                <h2 className="text-lg font-semibold text-indigo-800 dark:text-indigo-300">
+            {/* Page title */}
+            <div className="min-w-0">
+                <h2 className="text-base sm:text-lg font-semibold text-indigo-800 dark:text-indigo-300 truncate">
                     Faculty Portal
                 </h2>
             </div>

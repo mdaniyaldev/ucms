@@ -1,6 +1,7 @@
 import { useState } from "react";
 import CoordinatorSidebar from "./CoordinatorSidebar";
 import CoordinatorNavbar from "./CoordinatorNavbar";
+import CoordinatorMobileSidebar from "./CoordinatorMobileSidebar";
 import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 
@@ -10,7 +11,6 @@ export default function CoordinatorLayout({ children }) {
 
   // Block access if not coordinator
   if (user?.role !== "coordinator") {
-    // Redirect to login or unauthorized page if needed
     return <Navigate to="/login" replace />;
   }
 
@@ -19,16 +19,16 @@ export default function CoordinatorLayout({ children }) {
       {/* Desktop Sidebar */}
       <CoordinatorSidebar />
 
-      {/* Mobile Sidebar - simplified for now, can add proper mobile overlay later if needed */}
-      {/* For now, we will trust the main layout or just hide sidebar on mobile */}
-      
+      {/* Mobile Sidebar */}
+      <CoordinatorMobileSidebar open={mobileOpen} setOpen={setMobileOpen} />
+
       {/* Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Navbar */}
         <CoordinatorNavbar setMobileOpen={setMobileOpen} />
 
         {/* Page content */}
-        <main className="flex-1 p-6 bg-slate-50 dark:bg-slate-950">
+        <main className="flex-1 p-4 sm:p-6 bg-slate-50 dark:bg-slate-950 min-w-0">
           {children}
         </main>
       </div>

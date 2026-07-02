@@ -253,6 +253,7 @@ export function StudentDashboard() {
                 : "اپنی پہلی شکایت جمع کرائیں!"}
             </div>
           ) : (
+            <div className="w-full overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -273,17 +274,18 @@ export function StudentDashboard() {
                     <TableCell className="text-xs">
                       {complaint.id.slice(0, 8)}
                     </TableCell>
-                    <TableCell>{complaint.title}</TableCell>
+                    <TableCell className="max-w-[160px] truncate">{complaint.title}</TableCell>
                     <TableCell>
                       {getCategoryLabel(complaint.category)}
                     </TableCell>
-                    <TableCell>{complaint.department?.name || "N/A"}</TableCell>
+                    <TableCell className="max-w-[120px] truncate">{complaint.department?.name || "N/A"}</TableCell>
                     <TableCell>{formatDate(complaint.created_at)}</TableCell>
                     <TableCell>{getStatusBadge(complaint.status)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>

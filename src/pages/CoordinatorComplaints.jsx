@@ -284,7 +284,7 @@ export default function CoordinatorComplaints() {
                     <div className="flex flex-col lg:flex-row gap-6 justify-between items-start">
 
                       {/* Content Section */}
-                      <div className="space-y-3 flex-1 w-full">
+                      <div className="space-y-3 flex-1 w-full min-w-0">
                         {/* Meta Header */}
                         <div className="flex items-center gap-3 flex-wrap text-sm">
                           <span className="font-mono text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">
@@ -299,10 +299,10 @@ export default function CoordinatorComplaints() {
 
                         {/* Title & Body */}
                         <div>
-                          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors break-words">
                             {complaint.title}
                           </h3>
-                          <p className="mt-2 text-slate-600 dark:text-slate-300 text-sm leading-relaxed line-clamp-3">
+                          <p className="mt-2 text-slate-600 dark:text-slate-300 text-sm leading-relaxed line-clamp-3 break-words">
                             {complaint.body}
                           </p>
                         </div>

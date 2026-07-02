@@ -19,12 +19,12 @@ export default function FacultyMobileSidebar({ open, setOpen }) {
         <>
             {/* Overlay */}
             <div
-                className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                className="fixed inset-0 bg-black/50 z-40 lg:hidden"
                 onClick={() => setOpen(false)}
             />
 
             {/* Sidebar */}
-            <aside className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-950 z-50 p-4 flex flex-col md:hidden shadow-xl">
+            <aside className="fixed inset-y-0 left-0 w-64 bg-white dark:bg-slate-950 z-50 p-4 flex flex-col lg:hidden shadow-xl">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex flex-col items-center justify-center px-3 pt-3 pb-2 bg-transparent">
                         <img

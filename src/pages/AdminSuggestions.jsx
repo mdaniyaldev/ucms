@@ -323,7 +323,7 @@ export default function AdminSuggestions() {
                         <div className="space-y-3">
                           {/* Header */}
                           <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-2 flex-wrap">
                                 <Badge className={statusCfg.className}>
                                   {statusCfg.label}
@@ -343,7 +343,7 @@ export default function AdminSuggestions() {
                                   {CATEGORY_LABELS[suggestion.category] || suggestion.category}
                                 </span>
                               </div>
-                              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 break-words">
                                 {suggestion.title}
                               </h3>
                             </div>

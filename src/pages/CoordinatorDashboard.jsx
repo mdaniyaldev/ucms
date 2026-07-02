@@ -181,16 +181,16 @@ export default function CoordinatorDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-slate-100">
             Coordinator Dashboard
           </h1>
           <p className="text-gray-600 dark:text-slate-400">
             Overview of department complaints
           </p>
         </div>
-        <Button onClick={() => navigate("/coordinator/complaints")}>
+        <Button onClick={() => navigate("/coordinator/complaints")} className="w-full sm:w-auto">
           View All Complaints
         </Button>
       </div>
@@ -323,6 +323,7 @@ export default function CoordinatorDashboard() {
               No complaints found.
             </div>
           ) : (
+          <div className="w-full overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -338,11 +339,11 @@ export default function CoordinatorDashboard() {
                   <TableRow
                     key={c.id}
                     className="cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
-                    onClick={() => navigate("/coordinator/complaints")} // Could go to detail view later
+                    onClick={() => navigate("/coordinator/complaints")}
                   >
                     <TableCell className="text-xs">{c.id.slice(0, 8)}</TableCell>
-                    <TableCell className="font-medium">{c.title}</TableCell>
-                    <TableCell className="text-xs">
+                    <TableCell className="font-medium max-w-[160px] truncate">{c.title}</TableCell>
+                    <TableCell className="text-xs max-w-[120px] truncate">
                       {c.student?.role === 'faculty' ? 'Faculty: ' : 'Student: '}
                       {c.student?.unique_id || "N/A"}
                     </TableCell>
@@ -352,6 +353,7 @@ export default function CoordinatorDashboard() {
                 ))}
               </TableBody>
             </Table>
+          </div>
           )}
         </CardContent>
       </Card>

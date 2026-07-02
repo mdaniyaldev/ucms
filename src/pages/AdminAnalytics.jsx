@@ -214,7 +214,7 @@ export default function AdminAnalytics({ language = "en" }) {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
               {text[language].title}
@@ -224,14 +224,16 @@ export default function AdminAnalytics({ language = "en" }) {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-            <Select
-              value={selectedPeriod}
-              options={periodOptions}
-              onChange={handleFilterChange}
-              className="min-w-[180px] text-sm"
-              classNamePrefix="react-select"
-            />
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto items-center">
+            <div className="min-w-0 flex-1 sm:flex-none">
+              <Select
+                value={selectedPeriod}
+                options={periodOptions}
+                onChange={handleFilterChange}
+                className="min-w-[180px] text-sm"
+                classNamePrefix="react-select"
+              />
+            </div>
 
             <button
               type="button"
@@ -249,7 +251,7 @@ export default function AdminAnalytics({ language = "en" }) {
               data={exportDataset}
               headers={csvHeaders}
               filename={`ucms-ai-analytics-${daysCount}-days.csv`}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm font-medium text-white"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-sm font-medium text-white shrink-0 w-full sm:w-auto"
             >
               <Download className="w-4 h-4" />
               {text[language].exportCsv}

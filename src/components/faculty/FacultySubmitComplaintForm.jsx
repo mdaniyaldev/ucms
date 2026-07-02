@@ -374,7 +374,7 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
                 {text[language].uploadEvidence}
               </label>
-              <div className="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg p-8 text-center hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors cursor-pointer bg-gray-50 dark:bg-slate-900/50">
+              <div className="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg p-4 sm:p-8 text-center hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors cursor-pointer bg-gray-50 dark:bg-slate-900/50">
                 <Upload className="w-12 h-12 mx-auto text-gray-400 dark:text-slate-500 mb-2" />
                 <p className="text-gray-600 dark:text-slate-400 text-sm">
                   {text[language].uploadDesc}
@@ -422,7 +422,7 @@ export function FacultySubmitComplaintForm({ language = "en" }) {
             </div>
 
             {/* Submit and Cancel buttons */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 type="submit"
                 disabled={loading}

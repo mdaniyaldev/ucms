@@ -20,7 +20,7 @@ export default function Sidebar() {
   const { logout } = useAuth();
 
   return (
-    <aside className="hidden md:block w-64 bg-white dark:bg-slate-950 border-r border-slate-300 dark:border-slate-800 p-4">
+    <aside className="hidden lg:flex w-64 bg-white dark:bg-slate-950 border-r border-slate-300 dark:border-slate-800 p-4 flex-col">
       <div className="flex flex-col items-center justify-center px-3 pt-5 pb-3 bg-transparent">
         <img
           src={logoIcon}

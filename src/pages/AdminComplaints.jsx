@@ -154,7 +154,7 @@ export default function AdminComplaints() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Complaints Management</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -166,7 +166,7 @@ export default function AdminComplaints() {
             data={complaints}
             headers={csvHeaders}
             filename={`complaints_report_${new Date().toISOString().split('T')[0]}.csv`}
-            className="flex items-center gap-2 px-4 py-2 border rounded-lg text-sm bg-white hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center justify-center w-full sm:w-auto shrink-0 gap-2 px-4 py-2 border rounded-lg text-sm bg-white hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800 transition-colors"
           >
             <FileDown className="w-4 h-4" />
             Export CSV
@@ -383,7 +383,7 @@ export default function AdminComplaints() {
                 <label className="text-xs font-medium text-slate-500">Description</label>
                 <p className="text-sm text-slate-700 dark:text-slate-300">{selectedComplaint.body}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-slate-500">Status</label>
                   <div className="mt-1">{getStatusBadge(selectedComplaint.status)}</div>
@@ -393,7 +393,7 @@ export default function AdminComplaints() {
                   <div className="mt-1">{getCategoryBadge(selectedComplaint.category)}</div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-slate-500">
                     {selectedComplaint.student?.role === 'faculty' ? 'Faculty' : 'Student'}

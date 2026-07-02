@@ -14,7 +14,7 @@ export default function FacultySidebar() {
     const { logout, user } = useAuth();
 
     return (
-        <aside className="hidden md:flex w-64 bg-white dark:bg-slate-950 border-r border-indigo-200 dark:border-slate-800 p-4 flex-col">
+        <aside className="hidden lg:flex w-64 bg-white dark:bg-slate-950 border-r border-indigo-200 dark:border-slate-800 p-4 flex-col">
             <div>
                 <div className="flex flex-col items-center justify-center px-3 pt-5 pb-3 bg-transparent">
                     <img

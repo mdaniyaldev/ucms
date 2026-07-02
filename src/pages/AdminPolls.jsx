@@ -338,7 +338,7 @@ export default function AdminPolls() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
               <BarChart3 className="w-6 h-6 text-blue-500" />
@@ -349,7 +349,7 @@ export default function AdminPolls() {
             </p>
           </div>
 
-          <Button onClick={() => setShowCreate(true)} className="gap-2">
+          <Button onClick={() => setShowCreate(true)} className="gap-2 w-full sm:w-auto">
             <Plus className="w-4 h-4" />
             Create Poll
           </Button>
@@ -446,13 +446,13 @@ export default function AdminPolls() {
                         <div className="space-y-3">
                           {/* Header */}
                           <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-2">
                                 <Badge className={statusCfg.className}>
                                   {statusCfg.label}
                                 </Badge>
                               </div>
-                              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 break-words">
                                 {poll.title}
                               </h3>
                               {poll.description && (
@@ -675,7 +675,7 @@ export default function AdminPolls() {
                 </div>
 
                 {/* Dates */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-200">
                       Starts At (Optional)

@@ -24,19 +24,19 @@ export default function CoordinatorNavbar({ setMobileOpen }) {
       "
     >
       {/* Left: mobile menu + title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           className="lg:hidden p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
           onClick={() => setMobileOpen(true)}
         >
           <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200" />
         </button>
-        <div className="flex items-center gap-2">
-          <h1 className="font-semibold text-lg text-slate-800 dark:text-slate-100">
+        <div className="flex items-center gap-2 min-w-0">
+          <h1 className="font-semibold text-base sm:text-lg text-slate-800 dark:text-slate-100 truncate">
             Coordinator Portal
           </h1>
           {user?.department_name && (
-            <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+            <span className="hidden sm:inline-block text-sm font-medium px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 truncate max-w-[120px] sm:max-w-none">
               {user.department_name}
             </span>
           )}

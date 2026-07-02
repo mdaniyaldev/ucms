@@ -185,7 +185,7 @@ export function MyComplaints() {
     const config = statusConfig[status] || statusConfig.open;
 
     return (
-      <Badge variant={config.variant} className="gap-1">
+      <Badge variant={config.variant} className="gap-1 shrink-0">
         {getStatusIcon(status)}
         {config.label}
       </Badge>
@@ -371,7 +371,7 @@ export function MyComplaints() {
                   <div className="space-y-4">
                     {/* Header with ID, Category, and Status */}
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2 flex-wrap">
                           <span className="text-blue-600 dark:text-blue-400 font-semibold text-sm">
                             {complaint.id?.slice(0, 8)}
@@ -388,11 +388,11 @@ export function MyComplaints() {
                         </div>
 
                         {/* Title and Description */}
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1 break-words">
                           {complaint.title}
                         </h3>
 
-                        <p className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                        <p className="text-gray-600 dark:text-slate-400 text-sm mb-2 break-words">
                           {complaint.body || "No description provided"}
                         </p>
 
