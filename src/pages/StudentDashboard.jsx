@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -234,7 +235,11 @@ export function StudentDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>{text[language].recentComplaints}</CardTitle>
-          <Button variant="link">{text[language].viewAll}</Button>
+          <Button variant="link" asChild>
+            <Link to="/student/complaints">
+              {text[language].viewAll}
+            </Link>
+          </Button>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -254,37 +259,37 @@ export function StudentDashboard() {
             </div>
           ) : (
             <div className="w-full overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>{text[language].title}</TableHead>
-                  <TableHead>{text[language].category}</TableHead>
-                  <TableHead>{text[language].department}</TableHead>
-                  <TableHead>{text[language].date}</TableHead>
-                  <TableHead>{text[language].status}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentComplaints.map((complaint) => (
-                  <TableRow
-                    key={complaint.id}
-                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
-                  >
-                    <TableCell className="text-xs">
-                      {complaint.id.slice(0, 8)}
-                    </TableCell>
-                    <TableCell className="max-w-[160px] truncate">{complaint.title}</TableCell>
-                    <TableCell>
-                      {getCategoryLabel(complaint.category)}
-                    </TableCell>
-                    <TableCell className="max-w-[120px] truncate">{complaint.department?.name || "N/A"}</TableCell>
-                    <TableCell>{formatDate(complaint.created_at)}</TableCell>
-                    <TableCell>{getStatusBadge(complaint.status)}</TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>{text[language].title}</TableHead>
+                    <TableHead>{text[language].category}</TableHead>
+                    <TableHead>{text[language].department}</TableHead>
+                    <TableHead>{text[language].date}</TableHead>
+                    <TableHead>{text[language].status}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {recentComplaints.map((complaint) => (
+                    <TableRow
+                      key={complaint.id}
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800"
+                    >
+                      <TableCell className="text-xs">
+                        {complaint.id.slice(0, 8)}
+                      </TableCell>
+                      <TableCell className="max-w-[160px] truncate">{complaint.title}</TableCell>
+                      <TableCell>
+                        {getCategoryLabel(complaint.category)}
+                      </TableCell>
+                      <TableCell className="max-w-[120px] truncate">{complaint.department?.name || "N/A"}</TableCell>
+                      <TableCell>{formatDate(complaint.created_at)}</TableCell>
+                      <TableCell>{getStatusBadge(complaint.status)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
         </CardContent>

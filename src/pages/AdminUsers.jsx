@@ -586,7 +586,7 @@ export default function AdminUsers() {
                 {/* Phone Number */}
                 <div>
                   <label className="block text-xs font-medium text-subtle mb-1">
-                    WhatsApp Number (Optional)
+                    Phone Number (Optional)
                   </label>
                   <div className="relative">
                     <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-subtle font-mono">
@@ -602,7 +602,7 @@ export default function AdminUsers() {
                   </div>
                   <p className="text-xs text-subtle mt-1 flex items-center gap-1">
                     <AlertCircle className="w-3 h-3" />
-                    User must join Twilio sandbox to receive WhatsApp messages
+                    User will receive SMS notifications
                   </p>
                 </div>
 
