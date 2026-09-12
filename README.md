@@ -1,17 +1,152 @@
-# React + Vite
+<div align="center">
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# 🎓 University Complaint Management System (UCMS)
 
-Currently, two official plugins are available:
+**A role-based platform for submitting, routing, and resolving university complaints — with real-time SMS and email notifications.**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge&logo=vercel)](https://ucms-nu.vercel.app)
+[![React](https://img.shields.io/badge/React.js-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Twilio](https://img.shields.io/badge/Twilio-F22F46?style=for-the-badge&logo=twilio&logoColor=white)](https://www.twilio.com/)
 
-## React Compiler
+[**🔗 View Live Demo**](https://ucms-nu.vercel.app) · [Report Bug](../../issues) · [Request Feature](../../issues)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+</div>
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# ucms
+## 📖 Overview
+
+UCMS lets students submit complaints through a simple interface, then automatically routes them through Coordinators, Deans, and Administrators based on defined escalation rules. Each role gets its own dashboard, and users stay informed at every step via **SMS** and **email** notifications.
+
+🚀 **Deployed and live on Vercel** — [try it here](https://ucms-nu.vercel.app).
+
+## ✨ Features
+
+| | |
+| --- | --- |
+| 🔐 **Authentication & Protected Routes** | Secure sign-in with access restricted by user role |
+| 🧑‍🤝‍🧑 **Role-Based Dashboards** | Dedicated views for Students, Coordinators, Deans, and Administrators |
+| 🔄 **Complaint Routing & Escalation** | Complaints move through a defined workflow with status tracking and automatic escalation |
+| 🗃️ **Full CRUD Functionality** | Create, read, update, and manage complaints, backed by PostgreSQL |
+| 📲 **SMS Notifications** | Real-time status updates sent via Twilio |
+| 📧 **Transactional Emails** | Automated email notifications via Resend |
+| 📱 **Responsive UI** | Built with Tailwind CSS and shadcn/ui for a consistent experience across devices |
+| 🧪 **API Testing** | Endpoints validated with Postman during development |
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | React.js, Tailwind CSS, shadcn/ui |
+| Backend / Data | Supabase, PostgreSQL |
+| Notifications | Twilio (SMS), Resend (Email) |
+| Auth | Supabase Authentication |
+| Tooling | Vite, Postman |
+| Deployment | Vercel |
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later recommended)
+- npm or yarn
+- A Supabase project (URL + API keys)
+- Twilio account (for WhatsApp notifications)
+- Resend account (for transactional email)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/mdaniyaldev/ucms.git
+cd ucms
+
+# Install dependencies
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root with the following variables:
+
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=your_twilio_sms_number
+RESEND_API_KEY=your_resend_api_key
+```
+
+> Adjust variable names to match how they're referenced in the codebase.
+
+### Running Locally
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173` by default.
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+## 📁 Project Structure
+
+```
+ucms/
+├── src/
+│   ├── components/      # Reusable UI components
+│   ├── pages/            # Route-level pages / dashboards
+│   ├── lib/               # Supabase client, helpers, utilities
+│   ├── hooks/            # Custom React hooks
+│   └── App.jsx
+├── public/
+├── .env
+└── package.json
+```
+
+> Update this structure to match your actual folder layout.
+
+## 👥 Roles & Permissions
+
+| Role | Access |
+| --- | --- |
+| 🎓 Student | Submit complaints, track status of own complaints |
+| 🧑‍💼 Coordinator | Review and manage complaints at the department level |
+| 🏛️ Dean | Handle escalated complaints |
+| 🛡️ Administrator | Full system oversight and management |
+
+## 🗺️ Roadmap / Possible Improvements
+
+- [ ] Add analytics/reporting for complaint trends
+- [ ] Expand notification channels
+- [ ] Add file/attachment support for complaints
+
+## 🤝 Contributing
+
+This is currently a personal/academic project (Final Year Project). Suggestions and feedback are welcome via issues or pull requests.
+
+## 📄 License
+
+Specify your preferred license here (e.g., MIT).
+
+## 📬 Contact
+
+**Muhammad Daniyal**
+
+[![Email](https://img.shields.io/badge/Email-mdaniyal.tech%40gmail.com-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:mdaniyal.tech@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-mdaniyaldev-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/mdaniyaldev)
+
+---
+
+<div align="center">
+
+⭐ If you found this project interesting, consider giving it a star!
+
+</div>
