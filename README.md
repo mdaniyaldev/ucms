@@ -18,18 +18,26 @@
 
 ## 📖 Overview
 
-UCMS lets students submit complaints through a simple interface, then automatically routes them through Coordinators, Deans, and Administrators based on defined escalation rules. Each role gets its own dashboard, and users stay informed at every step via **SMS** and **email** notifications.
+UCMS lets students and faculty/staff submit complaints through a simple interface, which are then automatically routed to the relevant Department Coordinator based on category, with auto-escalation to Admin/University Management if unresolved within the defined timeframe. Each role gets its own dashboard, and users stay informed at every step via **SMS** and **email** notifications.
 
 🚀 **Deployed and live on Vercel** — [try it here](https://ucms-nu.vercel.app).
+
+✅ **Project Status:** Completed — developed across FYP 1 and FYP 2, and successfully evaluated as a Final Year Project.
 
 ## ✨ Features
 
 | | |
 | --- | --- |
 | 🔐 **Authentication & Protected Routes** | Secure sign-in with access restricted by user role |
-| 🧑‍🤝‍🧑 **Role-Based Dashboards** | Dedicated views for Students, Coordinators, Deans, and Administrators |
-| 🔄 **Complaint Routing & Escalation** | Complaints move through a defined workflow with status tracking and automatic escalation |
+| 🧑‍🤝‍🧑 **Role-Based Dashboards** | Dedicated views for Students, Faculty/Staff, Department Coordinators, and Admin/University Management |
+| 🔄 **Complaint Routing & Escalation** | Complaints are auto-routed to the relevant department, with status tracking (Pending → In Progress → Resolved) and automatic escalation if unresolved within the deadline |
 | 🗃️ **Full CRUD Functionality** | Create, read, update, and manage complaints, backed by PostgreSQL |
+| 📎 **Evidence Upload** | Attach photos/documents to complaints for more accurate reporting |
+| 📊 **Analytics Dashboard** | Admin-facing view of complaint statistics for transparency and accountability |
+| ⭐ **Feedback & Rating System** | Students can rate and give feedback on resolved complaints |
+| 💡 **Suggestion Box & Polls** | Students can submit suggestions; admins can create polls for improvements |
+| 🌐 **Multilingual Support** | Interface available in English and Urdu |
+| 🧠 **AI-Powered Analytics** | Insights into recurring issues, department-wise complaint trends, and average resolution time |
 | 📲 **SMS Notifications** | Real-time status updates sent via Twilio |
 | 📧 **Transactional Emails** | Automated email notifications via Resend |
 | 📱 **Responsive UI** | Built with Tailwind CSS and shadcn/ui for a consistent experience across devices |
@@ -53,7 +61,7 @@ UCMS lets students submit complaints through a simple interface, then automatica
 - Node.js (v18 or later recommended)
 - npm or yarn
 - A Supabase project (URL + API keys)
-- Twilio account (for WhatsApp notifications)
+- Twilio account (for SMS notifications)
 - Resend account (for transactional email)
 
 ### Installation
@@ -117,16 +125,17 @@ ucms/
 
 | Role | Access |
 | --- | --- |
-| 🎓 Student | Submit complaints, track status of own complaints |
-| 🧑‍💼 Coordinator | Review and manage complaints at the department level |
-| 🏛️ Dean | Handle escalated complaints |
-| 🛡️ Administrator | Full system oversight and management |
+| 🎓 Student | Submit complaints, attach evidence, track status of own complaints |
+| 🧑‍🏫 Faculty/Staff | Report issues related to their department |
+| 🧑‍💼 Department Coordinator | Receive and resolve complaints for their department |
+| 🛡️ Admin/University Management | Monitor all complaints, view analytics, and oversee department performance |
 
 ## 🗺️ Roadmap / Possible Improvements
 
-- [ ] Add analytics/reporting for complaint trends
-- [ ] Expand notification channels
-- [ ] Add file/attachment support for complaints
+All features proposed for FYP 1 and FYP 2 have been implemented. Potential future enhancements beyond the original scope:
+
+- [ ] Additional export/reporting options for admin analytics
+- [ ] Further UI/UX refinements based on user feedback
 
 ## 🤝 Contributing
 
